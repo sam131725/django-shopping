@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% static 'app/css/owl.carousel.min.css' %}">
     <link rel="stylesheet" href="{% static 'app/css/all.min.css' %}">
     <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
-    <title>PRODUCTS | {% block title %}{% endblock title %}</title>
+    <title>LezzShop | {% block title %}{% endblock title %}</title>
     <style>
         .owl-carousel .item{
          /* border: 1px solid black; */
@@ -92,11 +92,13 @@
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background:#2874f0;">
-  <div class="container-fluid">
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}" style="font-size:1.7em;letter-spacing:1px;">
-      <img src="{% static 'app/images/Screenshot_2025-01-03_142144-removebg-preview.png' %}" width="60" height="60" alt="" class="me-2">
-      <span style="color:#fff;">Flipmart</span>
+    <nav class="navbar navbar-expand-lg navbar-modern">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}" style="font-size:1.5em;">
+      <div class="brand-logo">
+        <i class="fas fa-shopping-bag"></i>
+      </div>
+      <span class="brand-text">LezzShop</span>
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -104,69 +106,288 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link text-white fw-bold" href="{% url 'home' %}">Home</a>
+          <a class="nav-link" href="{% url 'home' %}">
+            <i class="fas fa-home"></i> Home
+          </a>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Categories
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-th-large"></i> Categories
           </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="#">Clothing</a></li>
-            <li><a class="dropdown-item" href="#">Electronics</a></li>
-            <li><a class="dropdown-item" href="#">Shoes</a></li>
-            <li><a class="dropdown-item" href="#">Watches</a></li>
-            <li><a class="dropdown-item" href="#">Jewellery</a></li>
-            <li><a class="dropdown-item" href="#">Health & Beauty</a></li>
-            <li><a class="dropdown-item" href="#">Kids & Babies</a></li>
-            <li><a class="dropdown-item" href="#">Sports</a></li>
-            <li><a class="dropdown-item" href="#">Home & Garden</a></li>
+          <ul class="dropdown-menu modern-dropdown" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#"><i class="fas fa-tshirt"></i> Clothing</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-laptop"></i> Electronics</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-shoe-prints"></i> Shoes</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-clock"></i> Watches</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-gem"></i> Jewellery</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-spa"></i> Health & Beauty</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-baby"></i> Kids & Babies</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-football-ball"></i> Sports</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-home"></i> Home & Garden</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white fw-bold" href="{% url 'assistant' %}">Ask ShopGenie</a>
+          <a class="nav-link" href="{% url 'assistant' %}">
+            <i class="fas fa-magic"></i> Ask Genie
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white fw-bold" href="{% url 'about' %}">About Us</a>
+          <a class="nav-link" href="{% url 'about' %}">
+            <i class="fas fa-info-circle"></i> About
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white fw-bold" href="{% url 'contact' %}">Contact Us</a>
+          <a class="nav-link" href="{% url 'contact' %}">
+            <i class="fas fa-envelope"></i> Contact
+          </a>
         </li>
       </ul>
-      <form class="d-flex me-3" method="get" action="{% url 'search' %}">
-        <input class="form-control me-2" type="search" name="query" placeholder="Search for products, brands and more" aria-label="Search">
-        <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
+      <form class="d-flex me-3 search-form" method="get" action="{% url 'search' %}">
+        <div class="search-container">
+          <input class="form-control search-input" type="search" name="query" placeholder="Search products..." aria-label="Search">
+          <button class="btn search-btn" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
       </form>
       <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-        <li class="nav-item me-2">
-          <a class="btn btn-warning fw-bold" href="{% url 'showcart' %}" style="color:#2874f0;background:#ffd700;border:none;">
-            <i class="fas fa-shopping-cart"></i> Cart
+        <li class="nav-item me-3">
+          <a class="btn btn-cart" href="{% url 'showcart' %}">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-text">Cart</span>
           </a>
         </li>
         {% if request.user.is_authenticated %}
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle text-white fw-bold" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            {{ request.user.username }}
+          <a class="nav-link dropdown-toggle user-dropdown" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="user-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <span>{{ request.user.username }}</span>
           </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-            <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
-            <li><a class="dropdown-item" href="#">Orders</a></li>
-            <li><a class="dropdown-item" href="{% url 'passwordchange' %}">Change Password</a></li>
+          <ul class="dropdown-menu dropdown-menu-end modern-dropdown" aria-labelledby="profileDropdown">
+            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user-circle"></i> Profile</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-box"></i> Orders</a></li>
+            <li><a class="dropdown-item" href="{% url 'passwordchange' %}"><i class="fas fa-key"></i> Change Password</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
           </ul>
         </li>
         {% else %}
         <li class="nav-item">
-          <a class="nav-link text-white fw-bold" href="{% url 'login' %}">Login</a>
+          <a class="btn btn-login me-2" href="{% url 'login' %}">
+            <i class="fas fa-sign-in-alt"></i> Login
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link text-white fw-bold" href="{% url 'CustomerRegistration' %}">Register</a>
+          <a class="btn btn-register" href="{% url 'CustomerRegistration' %}">
+            <i class="fas fa-user-plus"></i> Register
+          </a>
         </li>
         {% endif %}
       </ul>
     </div>
   </div>
 </nav>
+
+<style>
+.navbar-modern {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+  padding: 12px 0;
+}
+
+.brand-logo {
+  width: 45px;
+  height: 45px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  font-size: 1.3rem;
+  color: white;
+}
+
+.brand-text {
+  color: white;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.navbar-modern .nav-link {
+  color: rgba(255,255,255,0.9) !important;
+  font-weight: 500;
+  padding: 8px 16px !important;
+  border-radius: 8px;
+  transition: all 0.3s;
+  margin: 0 2px;
+}
+
+.navbar-modern .nav-link:hover {
+  background: rgba(255,255,255,0.15);
+  color: white !important;
+}
+
+.navbar-modern .nav-link i {
+  margin-right: 6px;
+}
+
+.modern-dropdown {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  padding: 8px 0;
+  margin-top: 8px;
+}
+
+.modern-dropdown .dropdown-item {
+  padding: 10px 20px;
+  transition: all 0.3s;
+  color: #333;
+}
+
+.modern-dropdown .dropdown-item:hover {
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  color: #667eea;
+  padding-left: 25px;
+}
+
+.modern-dropdown .dropdown-item i {
+  margin-right: 10px;
+  width: 20px;
+  text-align: center;
+}
+
+.search-container {
+  position: relative;
+  width: 350px;
+}
+
+.search-input {
+  border: none;
+  border-radius: 25px;
+  padding: 10px 50px 10px 20px;
+  background: rgba(255,255,255,0.95);
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  background: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  outline: none;
+}
+
+.search-btn {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.search-btn:hover {
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-cart {
+  background: rgba(255,255,255,0.2);
+  color: white !important;
+  border: 2px solid rgba(255,255,255,0.3);
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-decoration: none;
+}
+
+.btn-cart:hover {
+  background: white;
+  color: #667eea !important;
+  border-color: white;
+}
+
+.btn-cart i {
+  margin-right: 6px;
+}
+
+.user-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.btn-login, .btn-register {
+  padding: 8px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-decoration: none;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.btn-login {
+  background: transparent;
+  color: white !important;
+}
+
+.btn-login:hover {
+  background: rgba(255,255,255,0.2);
+  border-color: white;
+  color: white !important;
+}
+
+.btn-register {
+  background: white;
+  color: #667eea !important;
+  border-color: white;
+}
+
+.btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+  color: #667eea !important;
+}
+
+@media (max-width: 991px) {
+  .search-container {
+    width: 100%;
+    margin: 15px 0;
+  }
+  
+  .navbar-modern .nav-link {
+    margin: 5px 0;
+  }
+  
+  .btn-cart, .btn-login, .btn-register {
+    width: 100%;
+    margin: 5px 0;
+    text-align: center;
+  }
+}
+</style>
       {% block banner-slider %}{% endblock banner-slider %}
       {% block main-content %}
       <!-- Floating Assistant Icon -->
@@ -176,9 +397,32 @@
 {% endblock main-content %}
       {% block information %} {%  endblock %}
 
-      <footer class="fixed-bottom text-center p-2 mt-5">
-        <p>Copyright: 2025 | Developed by: Saumya Rai</p>
+      <footer class="modern-footer">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <p class="mb-0">© 2025 LezzShop. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <p class="mb-0">Developed with ❤️ by Saumya Rai</p>
+            </div>
+          </div>
+        </div>
       </footer>
+      
+      <style>
+      .modern-footer {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 25px 0;
+        margin-top: 60px;
+      }
+      
+      .modern-footer p {
+        margin: 0;
+        opacity: 0.95;
+      }
+      </style>
       <style>
         /* Adjusting margin to create a gap between search and Saumya button */
         .navbar-nav .nav-item {

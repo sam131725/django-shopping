@@ -24,6 +24,7 @@ urlpatterns = [
     path("product-detail/<int:pk>/price-alert/", views.set_price_alert, name="set_price_alert"),
     path('registration/', views.CustomerRegistrationView.as_view() , name = "CustomerRegistration"),
     path('account/login/', views.user_login , name = 'login'),
+    path('accounts/login/', views.user_login , name = 'accounts-login'),  # Django default login URL
     path('address/',views.address, name='address'),
     path('updateaddress/<int:pk>/', views.updateAdress.as_view() , name ="updateaddress"),
      path('logout/', logout_view, name='logout'),

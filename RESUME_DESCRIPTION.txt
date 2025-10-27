@@ -1,0 +1,87 @@
+====================================================================
+LEZZSHOP - AI-POWERED E-COMMERCE PLATFORM
+====================================================================
+
+PROJECT DESCRIPTION (For Resume):
+----------------------------------
+
+LezzShop is a modern e-commerce platform built with Django 5.2+ and integrated with Google's Gemini LLM for AI-powered product recommendations and conversational shopping assistance.
+
+Key Features:
+• AI chatbot ("Genie") for intelligent product search and personalized recommendations using Google Generative AI
+• Real-time price alerts with email notifications, auto-buy functionality, and asynchronous task processing via Celery
+• Modern responsive UI with product slideshow, hierarchical categories, and seamless cart integration
+
+
+TECH STACK USED:
+----------------
+
+Backend:
+• Django 5.2+ (Python web framework)
+• Python 3.8+
+• Celery (asynchronous task processing for price alerts)
+• SQLite/PostgreSQL (database)
+
+AI/Machine Learning:
+• Google Generative AI (Gemini LLM for chatbot)
+• rapidfuzz (fuzzy text matching for search)
+
+Frontend:
+• Bootstrap 5 (responsive design)
+• JavaScript (AJAX for real-time interactions)
+• HTML5/CSS3 (modern gradient UI)
+
+Additional:
+• Pillow (image processing)
+• python-dotenv (environment variables)
+• Gmail SMTP (email notifications)
+• Django authentication system
+
+
+HOW IT WORKS (2 Key Points):
+-----------------------------
+
+1. AI-POWERED SHOPPING ASSISTANT:
+   - Implemented an intelligent chatbot using Google's Gemini LLM that understands natural language queries
+   - Users can ask questions like "Show me laptops under ₹50000" and get instant product recommendations
+   - Keyword-based category matching with fallback logic ensures high accuracy even without complex AI parsing
+   - Real-time AJAX responses provide seamless user experience without page reloads
+
+2. SMART PRICE MONITORING SYSTEM:
+   - Built an asynchronous price alert system using Celery for background task processing
+   - Users can set target prices for products and receive email notifications when prices drop
+   - Auto-buy feature automatically adds products to cart when target price is reached
+   - Gmail SMTP integration ensures reliable email delivery for price alerts
+
+
+PROJECT HIGHLIGHTS:
+-------------------
+
+✓ Full-stack development with Django backend and modern frontend
+✓ AI/ML integration using Google's Gemini LLM
+✓ Asynchronous task processing with Celery
+✓ RESTful API design patterns
+✓ Responsive UI/UX with Bootstrap 5
+✓ Email notification system
+✓ User authentication and authorization
+✓ Database design with hierarchical categories
+✓ Real-time chat interface with AJAX
+✓ Production-ready with proper error handling
+
+
+GITHUB LINK:
+-----------
+https://github.com/saumya1317/lezzshop
+
+
+SHORT VERSION (For LinkedIn/Resume Summary):
+--------------------------------------------
+
+LezzShop - AI-Powered E-Commerce Platform
+• Built with Django 5.2+ and Google Gemini LLM
+• Features: AI chatbot, price alerts, auto-buy, email notifications
+• Tech: Python, Django, Celery, Google Generative AI, Bootstrap 5
+• Asynchronous task processing, responsive UI, hierarchical categories
+
+
+====================================================================

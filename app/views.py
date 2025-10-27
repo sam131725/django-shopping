@@ -47,9 +47,21 @@ def home(request):
     # Show latest products as new products
     new_products = Product.objects.order_by('-id')[:8]  # Show latest 8 products
     main_categories = Category.objects.filter(parent=None)
+    
+    # Get clothing products for slideshow (look for clothing-related categories)
+    clothing_keywords = ['cloth', 'fashion', 'shirt', 'dress', 'jeans', 'apparel', 'wear']
+    clothing_categories = Category.objects.filter(
+        Q(name__icontains='cloth') | 
+        Q(name__icontains='fashion') |
+        Q(name__icontains='apparel') |
+        Q(name__icontains='wear')
+    )
+    slideshow_products = Product.objects.filter(category__in=clothing_categories)[:6] if clothing_categories.exists() else Product.objects.order_by('-id')[:6]
+    
     return render(request, "app/index.html", {
         'new_products': new_products,
         'main_categories': main_categories,
+        'slideshow_products': slideshow_products,
     })
 def about(request):
     return render(request, "app/about.html")
@@ -334,6 +346,43 @@ def assistant(request):
     chat_history = request.session['chat_history']
     response = None
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Handle AJAX requests for chatbot
+    if request.method == "POST" and request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        user_query = request.POST.get("query", "")
+        
+        # Get Gemini API key
+        GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+        if not GEMINI_API_KEY:
+            load_dotenv()
+            GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+        
+        if not GEMINI_API_KEY:
+            return JsonResponse({
+                'success': False,
+                'response': 'Gemini API key is missing. Please set GEMINI_API_KEY in your .env file.'
+            })
+        
+        genai.configure(api_key=GEMINI_API_KEY)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
+        # Check if it's a recipe/cooking request
+        is_recipe = any(word in user_query.lower() for word in ['cook', 'make', 'prepare', 'recipe', 'how to'])
+        
+        if is_recipe:
+            response_html = handle_recipe_query(user_query, model)
+        else:
+            response_html = handle_product_query(user_query, model)
+        
+        chat_history.append({'user': user_query, 'assistant': response_html, 'timestamp': now})
+        request.session['chat_history'] = chat_history
+        request.session.modified = True
+        
+        return JsonResponse({
+            'success': True,
+            'response': response_html
+        })
+    
     if request.method == "POST":
         if 'clear_chat' in request.POST or request.POST.get('clear_chat') is not None:
             request.session['chat_history'] = []
@@ -342,7 +391,6 @@ def assistant(request):
         # Always try to get the Gemini API key from the environment
         GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
         if not GEMINI_API_KEY:
-            from dotenv import load_dotenv
             load_dotenv()
             GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
         if not GEMINI_API_KEY:
@@ -350,7 +398,6 @@ def assistant(request):
             chat_history.append({'user': user_query, 'assistant': response, 'timestamp': now, 'type': 'current'})
             request.session['chat_history'] = chat_history
             return render(request, 'app/assistant.html', {'chat_history': chat_history})
-        import google.generativeai as genai
         genai.configure(api_key=GEMINI_API_KEY)
         model = genai.GenerativeModel('gemini-1.5-flash')
         # Detect if the query is a recipe/cooking request
@@ -359,7 +406,12 @@ def assistant(request):
             # 1. Get recipe and ingredients under budget
             recipe_prompt = f"""
             Give me a simple recipe for: {user_query}. List the ingredients and their approximate prices in INR, total cost under the mentioned budget if possible. Format as:
-            Recipe: ...\nIngredients:\n- item1 (price)\n- item2 (price)\n...\nInstructions: ...
+            Recipe: ...
+Ingredients:
+- item1 (price)
+- item2 (price)
+...
+Instructions: ...
             """
             recipe_response = model.generate_content(recipe_prompt)
             recipe_text = recipe_response.text.strip()
@@ -484,79 +536,214 @@ Which of these products best match the user's request? Only return a valid Pytho
             response = summary
         else:
             # --- Product recommendation logic ---
-            prompt = f"""
-            Extract the shopping category and budget from this query: '{user_query}'. 
-            Return as JSON with keys 'category' and 'budget'. If no budget is mentioned, set budget to null. If no category, set category to null.
-            """
-            try:
-                gemini_response = model.generate_content(prompt)
-                import json
-                parsed = json.loads(gemini_response.text.strip().split('```')[-1] if '```' in gemini_response.text else gemini_response.text)
-                category = parsed.get('category')
-                budget = parsed.get('budget')
-                if budget:
-                    try:
-                        budget = int(budget)
-                    except Exception:
-                        budget = None
-            except Exception:
-                import re
-                budget_match = re.search(r'under\s*₹?\s*(\d+)', user_query, re.IGNORECASE)
-                budget = int(budget_match.group(1)) if budget_match else None
-                category_keywords = ['outfit', 'dress', 'shirt', 'lehenga', 'jeans', 'wedding', 'kurta', 'saree', 'top', 'skirt', 'pant', 'tshirt', 'gown', 'suit', 'blouse', 'jacket', 'coat', 'trouser', 'salwar', 'choli', 'dupatta', 'ethnic', 'western', 'party', 'casual', 'formal']
-                category = next((word for word in category_keywords if word in user_query.lower()), None)
-            # --- Improved strict category and budget matching logic ---
-            matched_products = Product.objects.none()
-            response = None
-            if category:
-                cat_qs = Category.objects.filter(name__icontains=category)
-                if cat_qs.exists():
-                    all_cats = []
-                    for cat in cat_qs:
-                        all_cats.append(cat)
-                        all_cats.extend(get_descendant_categories(cat))
-                    if budget:
-                        matched_products = Product.objects.filter(
-                            category__in=all_cats,
-                            discounted_price__lte=budget
-                        )
-                    else:
-                        response = f"Please specify your budget for {category}."
-                else:
-                    response = f"Sorry, I couldn't find a matching category for '{category}'. Please clarify."
-            else:
-                response = "Please specify what category or type of product you are looking for."
-            # If we have matching products, build product cards
-            if matched_products.exists():
-                product_cards = []
-                for p in matched_products:
-                    detail_url = f"/product-detail/{p.pk}/"
-                    add_to_cart_url = f"/add-to-cart/?prod_id={p.pk}"
-                    card = f"""
-                    <div class='card mb-3' style='max-width: 500px;'>
-                        <div class='row g-0'>
-                            <div class='col-md-4'>
-                                <img src='{p.product_image.url if p.product_image else ''}' class='img-fluid rounded-start' alt='{p.title}'>
-                            </div>
-                            <div class='col-md-8'>
-                                <div class='card-body'>
-                                    <h5 class='card-title'>{p.title}</h5>
-                                    <p class='card-text'><b>₹{p.discounted_price}</b></p>
-                                    <p class='card-text'><small class='text-muted'>{p.description}</small></p>
-                                    <a href='{detail_url}' class='btn btn-outline-primary btn-sm' target='_blank'>View Product</a>
-                                    <a href='{add_to_cart_url}' class='btn btn-success btn-sm ms-2'>Add to Cart</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    """
-                    product_cards.append(card)
-                response = f"<div class='mb-2'><b>Recommended products in {category} under your budget:</b></div>"
-                response += ''.join(product_cards)
-            elif response is None:
-                response = f"No matching products found in {category} under your budget."
-            chat_history.append({'user': user_query, 'assistant': response, 'timestamp': now, 'type': 'current'})
-            request.session['chat_history'] = chat_history
-            return render(request, 'app/assistant.html', {'chat_history': chat_history})
+            response = handle_product_query_full(user_query, model)
+            
+        chat_history.append({'user': user_query, 'assistant': response, 'timestamp': now, 'type': 'current'})
+        request.session['chat_history'] = chat_history
+        return render(request, 'app/assistant.html', {'chat_history': chat_history})
     return render(request, 'app/assistant.html', {'chat_history': chat_history})
+
+
+def handle_recipe_query(user_query, model):
+    """Handle recipe-related queries and return formatted HTML response."""
+    recipe_prompt = f"""
+    Give me a simple recipe for: {user_query}. List the ingredients and their approximate prices in INR, total cost under the mentioned budget if possible. Format as:
+    Recipe: ...
+    Ingredients:
+    - item1 (price)
+    - item2 (price)
+    ...
+    Instructions: ...
+    """
+    recipe_response = model.generate_content(recipe_prompt)
+    recipe_text = recipe_response.text.strip()
+    
+    # Extract budget
+    budget_match = re.search(r'under\s*₹?\s*(\d+)', user_query, re.IGNORECASE)
+    budget = int(budget_match.group(1)) if budget_match else 100
+    
+    # Build product list under budget
+    available_products = Product.objects.filter(discounted_price__lte=budget)
+    product_list = [f"{p.title} - ₹{p.discounted_price}" for p in available_products]
+    product_list_str = "\n".join(product_list)
+    
+    matched_products = Product.objects.none()
+    if product_list:
+        gemini_match_prompt = f"""
+        User query: {user_query}
+        Here is a list of products available (title, price):
+        {product_list_str}
+        Which of these products best match the user's request for ingredients? Return only product titles as a comma-separated list.
+        """
+        try:
+            gemini_match_response = model.generate_content(gemini_match_prompt)
+            selected_titles_text = gemini_match_response.text.strip()
+            selected_titles = [t.strip() for t in selected_titles_text.split(',') if t.strip()]
+            matched_products = Product.objects.filter(title__in=selected_titles)
+        except Exception:
+            pass
+    
+    # Prepare product cards
+    product_cards = []
+    for p in matched_products:
+        detail_url = f"/product-detail/{p.pk}/"
+        add_to_cart_url = f"/add-to-cart/?prod_id={p.pk}"
+        card = f"""
+        <div class='product-card'>
+            <img src='{p.product_image.url if p.product_image else ''}' alt='{p.title}'>
+            <div class='product-info'>
+                <h6>{p.title}</h6>
+                <p class='price'>₹{p.discounted_price}</p>
+                <div class='product-actions'>
+                    <a href='{detail_url}' class='btn-view' target='_blank'>View</a>
+                    <a href='{add_to_cart_url}' class='btn-cart'>Add to Cart</a>
+                </div>
+            </div>
+        </div>
+        """
+        product_cards.append(card)
+    
+    # Format recipe text nicely
+    recipe_html = recipe_text.replace('\n', '<br>')
+    summary = f"<div class='recipe-response'><strong>Recipe & Ingredients:</strong><br>{recipe_html}</div>"
+    
+    if matched_products.exists():
+        summary += "<div class='products-header'><strong>Recommended products from our store:</strong></div>"
+        summary += '<div class="products-grid">' + ''.join(product_cards) + '</div>'
+    else:
+        summary += "<div class='info-message'>No matching products found in our store, but here's a recipe you can try!</div>"
+    
+    return summary
+
+
+def handle_product_query(user_query, model):
+    """Handle product recommendation queries and return formatted HTML response."""
+    # Simple keyword extraction instead of complex Gemini parsing
+    user_query_lower = user_query.lower()
+    
+    # Extract budget from query
+    budget = None
+    budget_match = re.search(r'under\s*₹?\s*(\d+)', user_query, re.IGNORECASE)
+    if budget_match:
+        budget = int(budget_match.group(1))
+    
+    # Direct category matching from user query
+    category = None
+    
+    # Get all categories from database
+    all_categories = Category.objects.all()
+    category_names = [cat.name.lower() for cat in all_categories]
+    
+    # Check if any category name is in the user query
+    for cat in all_categories:
+        if cat.name.lower() in user_query_lower:
+            category = cat.name
+            break
+    
+    # If no exact match, try common shopping keywords
+    if not category:
+        keyword_mapping = {
+            'laptop': 'Electronics',
+            'phone': 'Electronics',
+            'mobile': 'Electronics',
+            'computer': 'Electronics',
+            'cloth': 'Clothing',
+            'dress': 'Clothing',
+            'shirt': 'Clothing',
+            'pant': 'Clothing',
+            'jeans': 'Clothing',
+            'ethnic': 'Clothing',
+            'traditional': 'Clothing',
+            'western': 'Clothing',
+            'kurta': 'Clothing',
+            'saree': 'Clothing',
+            'lehenga': 'Clothing',
+            'shoes': 'Shoes',
+            'footwear': 'Shoes',
+            'watch': 'Watches',
+            'jewel': 'Jewellery',
+            'beauty': 'Health & Beauty',
+            'cosmetic': 'Health & Beauty',
+            'kids': 'Kids & Babies',
+            'baby': 'Kids & Babies',
+            'sport': 'Sports',
+            'home': 'Home & Garden',
+            'garden': 'Home & Garden',
+        }
+        
+        for keyword, cat_name in keyword_mapping.items():
+            if keyword in user_query_lower:
+                # Check if this category exists in database
+                if Category.objects.filter(name__icontains=cat_name).exists():
+                    category = cat_name
+                    break
+    
+    matched_products = Product.objects.none()
+    response = None
+    
+    if category:
+        cat_qs = Category.objects.filter(Q(name__icontains=category))
+        if cat_qs.exists():
+            all_cats = []
+            for cat in cat_qs:
+                all_cats.append(cat)
+                all_cats.extend(get_descendant_categories(cat))
+            
+            if budget:
+                matched_products = Product.objects.filter(
+                    category__in=all_cats,
+                    discounted_price__lte=budget
+                )
+            else:
+                matched_products = Product.objects.filter(category__in=all_cats)
+                # If no budget specified and no products, suggest specifying budget
+                if not matched_products.exists():
+                    return f"<div class='info-message'>I found the category '{category}'. Please specify your budget to see products. For example: 'Show me {category} under ₹5000'</div>"
+        else:
+            return f"<div class='info-message'>Sorry, I couldn't find products in the '{category}' category. Try browsing our categories or ask me about Electronics, Clothing, Shoes, Watches, or other categories.</div>"
+    else:
+        # No category found - provide helpful guidance
+        available_categories = Category.objects.filter(parent=None)[:6]
+        cat_list = ', '.join([cat.name for cat in available_categories])
+        return f"<div class='info-message'>Please specify what you're looking for! Try asking about: {cat_list}, or tell me what product you need.</div>"
+    
+    # If we have matching products, build product cards
+    if matched_products.exists():
+        product_cards = []
+        display_count = min(matched_products.count(), 6)  # Show max 6 products
+        for p in matched_products[:display_count]:
+            detail_url = f"/product-detail/{p.pk}/"
+            add_to_cart_url = f"/add-to-cart/?prod_id={p.pk}"
+            card = f"""
+            <div class='product-card'>
+                <img src='{p.product_image.url if p.product_image else ''}' alt='{p.title}'>
+                <div class='product-info'>
+                    <h6>{p.title}</h6>
+                    <p class='price'>₹{p.discounted_price}</p>
+                    <div class='product-actions'>
+                        <a href='{detail_url}' class='btn-view' target='_blank'>View</a>
+                        <a href='{add_to_cart_url}' class='btn-cart'>Add to Cart</a>
+                    </div>
+                </div>
+            </div>
+            """
+            product_cards.append(card)
+        
+        budget_text = f" under ₹{budget}" if budget else ""
+        response = f"<div class='products-header'><strong>Found {matched_products.count()} products in {category}{budget_text}:</strong></div>"
+        response += '<div class="products-grid">' + ''.join(product_cards) + '</div>'
+        
+        if matched_products.count() > 6:
+            response += f"<div class='info-message'>Showing 6 of {matched_products.count()} products. Visit the category page to see all items.</div>"
+    elif budget:
+        response = f"<div class='info-message'>No products found in {category} under ₹{budget}. Try increasing your budget or browse other categories.</div>"
+    else:
+        response = f"<div class='info-message'>No products found in {category}. Please check our other categories.</div>"
+    
+    return response
+
+
+def handle_product_query_full(user_query, model):
+    """Full handler for product queries (non-AJAX version)."""
+    return handle_product_query(user_query, model)
 
