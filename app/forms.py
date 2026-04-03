@@ -68,7 +68,9 @@ class LoginForm(AuthenticationForm):
 
 
 class CustomerProfileform(forms.ModelForm):
-    
+    class Meta:
+        model = Customer
+        fields = ['name', 'locality', 'city', 'mobile', 'state', 'zipcode']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -94,16 +96,12 @@ class CustomerProfileform(forms.ModelForm):
                 'placeholder': 'Enter your zip code',
             }),
         }
-        class Meta:
-         model = Customer
-        # Include all fields you want in the form
-         fields = ['name', 'locality', 'city', 'mobile', 'state', 'zipcode']
 class MyPasswordChangeForm(PasswordChangeForm):
     old_password =forms.CharField(label='Old password ',widget=forms.PasswordInput(attrs={'autofocus' :'True','autocomplete':'current-password','class':'form-control'})) 
-    new_password1= forms.CharField(label='New Password',widget=forms.PasswordInput(attrs ={'autocomplete':'curent-password','class':'form-control'}))
+    new_password1= forms.CharField(label='New Password',widget=forms.PasswordInput(attrs ={'autocomplete':'current-password','class':'form-control'}))
     new_password2=forms.CharField(label='Confirm-Password',widget=forms.PasswordInput(attrs={'autocomplete':'current-password','class':'form-control'}))
 class MyPasswordResetForm(PasswordResetForm):
    email= forms.EmailField(widget=forms.EmailInput(attrs={'class':'form-control'}))
 class MySetPasswordForm(SetPasswordForm):
     new_password1=forms.CharField(label='New Password',widget=forms.PasswordInput(attrs={'autocomplete':'current-password', 'class':'form-control'}))
-    new_password1=forms.CharField(label='Confirm New Password',widget=forms.PasswordInput(attrs={'autocomplete':'current-password', 'class':'form-control'}))
+    new_password2=forms.CharField(label='Confirm New Password',widget=forms.PasswordInput(attrs={'autocomplete':'current-password', 'class':'form-control'}))

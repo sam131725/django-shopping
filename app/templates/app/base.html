@@ -2,488 +2,158 @@
 {% load static %}
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A sample products page designed by Saumya Rai.">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="{% static 'app/css/owl.carousel.min.css' %}">
-    <link rel="stylesheet" href="{% static 'app/css/all.min.css' %}">
-    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
-    <title>LezzShop | {% block title %}{% endblock title %}</title>
+    <meta name="description" content="A sample premium products page.">
+    <title>Sabhachik | {% block title %}{% endblock title %}</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Swiper JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#C8A27A', // Beige/Tan
+                        accent: '#E8D5C4', // Cream
+                        background: '#F7F3EF', // Light Beige
+                        'text-dark': '#3E2F23', // Dark Brown
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
     <style>
-        .owl-carousel .item{
-         /* border: 1px solid black; */
-         font-size: 24px;
-         text-align: center;
-         margin-top: 20px;
-         transition: transform .5s ease;
-        }
-        .owl-carousel .item:hover{
-           /* border: 1px solid black; */
-           transform : scale(1.1);
-        }
-        /* .owl-carousel img{
-            transition: transform .5s ease;
-          }
-         .owl-carousel img:hover{
-            
-            transform : scale(1.25);
-        } */
-        .owl-next{
-         float:right;
-        }
-        .owl-prev{
-         float:left;
-        }
-        .owl-prev span{
-         font-size: 24px;
-         font-weight: bold;
-        }
-        .owl-next span{
-         font-size: 24px;
-         font-weight: bold;
-        }
-        .navbar {
-            background-color: #FFD1DC; /* Pastel pink color */
-            color: #000; /* Black text for contrast */
-            border: none; /* Remove any borders if present */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-        }
-        .navbar a {
-            color: #000; /* Black text for links */
-            text-decoration: none; /* Remove underline from links */
-        }
-        .navbar a:hover {
-            color: #FF69B4; /* Slightly darker pink for hover effect */
-        }
-        .navbar-nav, .navbar-nav li {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        /* Remove bullets, padding, and margin from the navbar items */
-        .navbar-nav {
-            list-style-type: none !important; /* Remove bullets */
-            padding-left: 0 !important; /* Remove padding */
-            margin-bottom: 0 !important; /* Remove bottom margin */
-        }
-        .navbar-nav > li {
-            display: inline-block !important; /* Make items inline */
-            margin-right: 15px; /* Optional: space between items */
-        }
-        .navbar-nav .nav-item {
-            padding: 0; /* Ensure no additional padding */
-        }
-        .pink-shadow {
-            box-shadow: 0 4px 8px rgba(255, 192, 203, 0.6); /* Pink shadow */
-            transition: box-shadow 0.3s ease;
-        }
-        .pink-shadow:hover {
-            box-shadow: 0 8px 16px rgba(255, 105, 180, 0.8); /* Darker pink shadow on hover */
-        }
-        #navbarSupportedContent {
-            list-style-type: none;
-        }
-        #navbarSupportedContent .nav-link.text-white {
-          color: black !important;
-          
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #F7F3EF; color: #3E2F23; }
+        /* Hide navbar on initial load for GSAP animation */
+        #navbar { opacity: 0; transform: translateY(-20px); }
     </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-modern">
-  <div class="container-fluid px-4">
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}" style="font-size:1.5em;">
-      <div class="brand-logo">
-        <i class="fas fa-shopping-bag"></i>
-      </div>
-      <span class="brand-text">LezzShop</span>
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'home' %}">
-            <i class="fas fa-home"></i> Home
-          </a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-th-large"></i> Categories
-          </a>
-          <ul class="dropdown-menu modern-dropdown" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="#"><i class="fas fa-tshirt"></i> Clothing</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-laptop"></i> Electronics</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-shoe-prints"></i> Shoes</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-clock"></i> Watches</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-gem"></i> Jewellery</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-spa"></i> Health & Beauty</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-baby"></i> Kids & Babies</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-football-ball"></i> Sports</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-home"></i> Home & Garden</a></li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'assistant' %}">
-            <i class="fas fa-magic"></i> Ask Genie
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'about' %}">
-            <i class="fas fa-info-circle"></i> About
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'contact' %}">
-            <i class="fas fa-envelope"></i> Contact
-          </a>
-        </li>
-      </ul>
-      <form class="d-flex me-3 search-form" method="get" action="{% url 'search' %}">
-        <div class="search-container">
-          <input class="form-control search-input" type="search" name="query" placeholder="Search products..." aria-label="Search">
-          <button class="btn search-btn" type="submit">
-            <i class="fas fa-search"></i>
-          </button>
+<body class="flex flex-col min-h-screen relative">
+    
+    <!-- Sticky Glassmorphism Navbar -->
+    <nav id="navbar" class="sticky top-0 z-50 backdrop-blur-lg bg-white/80 border-b border-accent/30 w-full transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 md:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="{% url 'home' %}" class="flex items-center gap-2 text-2xl font-bold text-text-dark hover:text-primary transition">
+                    <i class="fas fa-shopping-bag text-primary"></i>
+                    <span>Sabhachik</span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home' %}" class="text-text-dark/70 hover:text-primary font-medium transition">Home</a>
+                    <a href="{% url 'assistant' %}" class="text-text-dark/70 hover:text-primary font-medium transition">Inspiration</a>
+                    <a href="{% url 'about' %}" class="text-text-dark/70 hover:text-primary font-medium transition">About</a>
+                    
+                    <!-- Modern Search Bar -->
+                    <form method="get" action="{% url 'search' %}" class="relative">
+                        <div class="relative flex items-center bg-accent/40 rounded-full px-4 py-2.5 transition-all focus-within:ring-2 focus-within:ring-primary focus-within:bg-white hover:bg-accent/50">
+                            <i class="fas fa-search text-text-dark/40 text-sm mr-3 absolute"></i>
+                            <input 
+                                type="text" 
+                                name="query" 
+                                placeholder="Search products..." 
+                                class="bg-transparent pl-6 pr-4 text-sm focus:outline-none w-44 placeholder-text-dark/40 text-text-dark"
+                            >
+                            <span class="text-text-dark/20 text-xs ml-2">⌘K</span>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'showcart' %}" class="text-text-dark/70 hover:text-primary transition flex items-center gap-1">
+                        <i class="fas fa-shopping-cart text-lg"></i>
+                        <span class="hidden md:inline text-sm font-medium">Cart</span>
+                    </a>
+                    
+                    {% if request.user.is_authenticated %}
+                        <div class="relative group">
+                            <button class="flex items-center gap-2 text-text-dark/70 hover:text-primary transition font-medium">
+                                <i class="fas fa-user-circle text-xl"></i>
+                                <span class="hidden md:inline">{{ request.user.username }}</span>
+                            </button>
+                            <!-- Dropdown -->
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-accent/20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right">
+                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-text-dark hover:bg-accent/30 hover:text-primary rounded-t-xl">Profile</a>
+                                <a href="{% url 'passwordchange' %}" class="block px-4 py-2 text-sm text-text-dark hover:bg-accent/30 hover:text-primary">Settings</a>
+                                <hr class="border-accent/20">
+                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-xl">Logout</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-text-dark/70 hover:text-primary font-medium transition hidden md:block">Login</a>
+                        <a href="{% url 'CustomerRegistration' %}" class="bg-primary text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition shadow-sm hover:shadow-md">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-      </form>
-      <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
-        <li class="nav-item me-3">
-          <a class="btn btn-cart" href="{% url 'showcart' %}">
-            <i class="fas fa-shopping-cart"></i>
-            <span class="cart-text">Cart</span>
-          </a>
-        </li>
-        {% if request.user.is_authenticated %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle user-dropdown" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <div class="user-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <span>{{ request.user.username }}</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end modern-dropdown" aria-labelledby="profileDropdown">
-            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user-circle"></i> Profile</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-box"></i> Orders</a></li>
-            <li><a class="dropdown-item" href="{% url 'passwordchange' %}"><i class="fas fa-key"></i> Change Password</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-          </ul>
-        </li>
-        {% else %}
-        <li class="nav-item">
-          <a class="btn btn-login me-2" href="{% url 'login' %}">
-            <i class="fas fa-sign-in-alt"></i> Login
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="btn btn-register" href="{% url 'CustomerRegistration' %}">
-            <i class="fas fa-user-plus"></i> Register
-          </a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
-  </div>
-</nav>
+    </nav>
 
-<style>
-.navbar-modern {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-  padding: 12px 0;
-}
+    <!-- Banner Slider Block (Optional if used individually) -->
+    {% block banner-slider %}{% endblock banner-slider %}
 
-.brand-logo {
-  width: 45px;
-  height: 45px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-  font-size: 1.3rem;
-  color: white;
-}
-
-.brand-text {
-  color: white;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.navbar-modern .nav-link {
-  color: rgba(255,255,255,0.9) !important;
-  font-weight: 500;
-  padding: 8px 16px !important;
-  border-radius: 8px;
-  transition: all 0.3s;
-  margin: 0 2px;
-}
-
-.navbar-modern .nav-link:hover {
-  background: rgba(255,255,255,0.15);
-  color: white !important;
-}
-
-.navbar-modern .nav-link i {
-  margin-right: 6px;
-}
-
-.modern-dropdown {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  padding: 8px 0;
-  margin-top: 8px;
-}
-
-.modern-dropdown .dropdown-item {
-  padding: 10px 20px;
-  transition: all 0.3s;
-  color: #333;
-}
-
-.modern-dropdown .dropdown-item:hover {
-  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-  color: #667eea;
-  padding-left: 25px;
-}
-
-.modern-dropdown .dropdown-item i {
-  margin-right: 10px;
-  width: 20px;
-  text-align: center;
-}
-
-.search-container {
-  position: relative;
-  width: 350px;
-}
-
-.search-input {
-  border: none;
-  border-radius: 25px;
-  padding: 10px 50px 10px 20px;
-  background: rgba(255,255,255,0.95);
-  transition: all 0.3s;
-}
-
-.search-input:focus {
-  background: white;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  outline: none;
-}
-
-.search-btn {
-  position: absolute;
-  right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s;
-}
-
-.search-btn:hover {
-  transform: translateY(-50%) scale(1.05);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.btn-cart {
-  background: rgba(255,255,255,0.2);
-  color: white !important;
-  border: 2px solid rgba(255,255,255,0.3);
-  padding: 8px 20px;
-  border-radius: 25px;
-  font-weight: 600;
-  transition: all 0.3s;
-  text-decoration: none;
-}
-
-.btn-cart:hover {
-  background: white;
-  color: #667eea !important;
-  border-color: white;
-}
-
-.btn-cart i {
-  margin-right: 6px;
-}
-
-.user-dropdown {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.btn-login, .btn-register {
-  padding: 8px 20px;
-  border-radius: 25px;
-  font-weight: 600;
-  transition: all 0.3s;
-  text-decoration: none;
-  border: 2px solid rgba(255,255,255,0.3);
-}
-
-.btn-login {
-  background: transparent;
-  color: white !important;
-}
-
-.btn-login:hover {
-  background: rgba(255,255,255,0.2);
-  border-color: white;
-  color: white !important;
-}
-
-.btn-register {
-  background: white;
-  color: #667eea !important;
-  border-color: white;
-}
-
-.btn-register:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255,255,255,0.3);
-  color: #667eea !important;
-}
-
-@media (max-width: 991px) {
-  .search-container {
-    width: 100%;
-    margin: 15px 0;
-  }
-  
-  .navbar-modern .nav-link {
-    margin: 5px 0;
-  }
-  
-  .btn-cart, .btn-login, .btn-register {
-    width: 100%;
-    margin: 5px 0;
-    text-align: center;
-  }
-}
-</style>
-      {% block banner-slider %}{% endblock banner-slider %}
-      {% block main-content %}
-      <!-- Floating Assistant Icon -->
-<a href="{% url 'assistant' %}" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999; background: #FFD1DC; border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); text-decoration: none;">
-  <i class="fas fa-robot" style="font-size: 2rem; color: #fff;"></i>
-</a>
-{% endblock main-content %}
-      {% block information %} {%  endblock %}
-
-      <footer class="modern-footer">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-6">
-              <p class="mb-0">© 2025 LezzShop. All rights reserved.</p>
-            </div>
-            <div class="col-md-6 text-md-end">
-              <p class="mb-0">Developed with ❤️ by Saumya Rai</p>
-            </div>
-          </div>
-        </div>
-      </footer>
-      
-      <style>
-      .modern-footer {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 25px 0;
-        margin-top: 60px;
-      }
-      
-      .modern-footer p {
-        margin: 0;
-        opacity: 0.95;
-      }
-      </style>
-      <style>
-        /* Adjusting margin to create a gap between search and Saumya button */
-        .navbar-nav .nav-item {
-            margin-left: 20px; /* Adjust this value to your liking */
-        }
+    <!-- Main Content wrapper -->
+    <main class="flex-grow">
+        {% block main-content %}
+        {% endblock main-content %}
         
-        /* Or, if you prefer adjusting the form (Search) */
-        .d-flex {
-            margin-right: 20px; /* Adjust this value for a suitable gap */
-        }
-    </style>
-<style>
-  /* Adjust Saumya dropdown position */
-  .navbar-nav .nav-item.dropdown {
-      margin-top: 1px;
-      /* Adjust this value to align with the Cart button */
-  }
+        <!-- Floating Chatbot Button -->
+        <a href="{% url 'assistant' %}" class="fixed bottom-6 right-6 z-50 bg-primary text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 group" title="Chat with us">
+            <span class="flex items-center justify-center w-full h-full group-hover:rotate-12 transition-transform">
+                <i class="fas fa-comments text-xl"></i>
+            </span>
+        </a>
+    </main>
+    
+    {% block information %}{% endblock %}
 
-  .navbar-nav .nav-item {
-      margin-left: 15px;
-      font-style: inherit;  /* Ensure consistent left margin for all nav items */
-  }
-</style>
-<style>
-    /* Apply hover effect to navbar links on both sides */
-    .navbar-nav .nav-link:hover {
-        background-color: #FF1493 !important; /* Dark pink */
-        color: white !important; /* Text color white on hover */
-        transition: background-color 0.3s ease; /* Smooth transition */
-    }
+    <!-- Minimal Footer -->
+    <footer class="bg-white/60 border-t border-accent/30 mt-16 py-10 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2 text-text-dark font-bold text-xl">
+                <i class="fas fa-shopping-bag text-primary"></i> Sabhachik
+            </div>
+            <p class="text-text-dark/50 text-sm">© 2026 Sabhachik. Crafted with intention.</p>
+            <div class="flex gap-4 text-text-dark/40 hover:text-primary transition">
+                <a href="#" class="hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-primary transition"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </footer>
 
-    /* Optional: You can also add a border radius if you want rounded edges */
-    .navbar-nav .nav-link {
-        border-radius: 5px; /* Optional for rounded corners */
-    }
-
-    /* Make sure the links on the right side are aligned similarly */
-    .navbar-nav .nav-item {
-        margin-left: 10px; /* Optional: Add space between right-side items */
-    }
-</style>
-
-<style>
-  /* Apply hover effect to navbar links */
-  .navbar-nav .nav-link:hover {
-      background-color: #FF1493 !important; /* Dark pink */
-      color: white !important; /* Text color white on hover */
-      transition: background-color 0.3s ease; /* Smooth transition */
-  }
-
-  /* Optional: You can also add a border radius if you want rounded edges */
-  .navbar-nav .nav-link {
-      border-radius: 5px; /* Optional for rounded corners */
-  }
-</style>
-
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="{% static 'app/js/all.min.js' %}"></script>
-    <script src="{% static 'app/js/myscript.js' %}"></script>
-    <script src="{% static 'app/js/owl.carousel.min.js' %}"></script>
+    <script>
+        // Initialize GSAP Navbar Animation
+        gsap.to("#navbar", {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            delay: 0.1
+        });
+        
+        // Ensure ScrollTrigger is registered
+        gsap.registerPlugin(ScrollTrigger);
+    </script>
 </body>
 </html>

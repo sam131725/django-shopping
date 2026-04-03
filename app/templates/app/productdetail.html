@@ -3,521 +3,229 @@
 {% block title %}{{ product.title }}{% endblock title %}
 
 {% block main-content %}
-<div class="product-detail-page">
-    <div class="container py-5">
-        <div class="row g-5">
-            <!-- Product Image Section -->
-            <div class="col-md-6">
-                <div class="image-gallery">
-                    <div class="main-image" data-bs-toggle="modal" data-bs-target="#imageModal">
-                        <img src="{{ product.product_image.url }}" alt="{{ product.title }}" class="img-fluid">
-                        <div class="zoom-badge">
-                            <i class="fas fa-search-plus"></i> Click to zoom
+<div class="bg-gray-50 min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 md:px-8">
+        <!-- Back Button -->
+        <button onclick="window.history.back()" class="flex items-center gap-2 text-gray-600 hover:text-primary transition font-medium mb-8">
+            <i class="fas fa-arrow-left"></i>
+            Back to Products
+        </button>
+
+        <!-- Product Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            
+            <!-- Image Section -->
+            <div class="flex items-center justify-center">
+                <div class="w-full bg-white rounded-2xl shadow-lg overflow-hidden h-fit sticky top-24">
+                    <div class="relative w-full h-96 bg-gray-100 flex items-center justify-center cursor-zoom-in" onclick="document.getElementById('imageModal').showModal()">
+                        <img 
+                            src="{{ product.product_image.url }}" 
+                            alt="{{ product.title }}" 
+                            class="max-h-96 max-w-full object-contain object-center hover:scale-105 transition-transform duration-500"
+                        >
+                        <div class="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-2 rounded-full text-sm flex items-center gap-2 opacity-0 hover:opacity-100 transition-opacity">
+                            <i class="fas fa-search-plus text-sm"></i>
+                            Click to zoom
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Product Info Section -->
-            <div class="col-md-6">
-                <div class="product-info-section">
-                    <!-- Category Badge -->
-                    <div class="mb-3">
-                        <span class="category-badge">{{ product.category.name }}</span>
-                    </div>
-                    
-                    <!-- Product Title -->
-                    <h1 class="product-title">{{ product.title }}</h1>
+            <div class="flex flex-col gap-8">
+                
+                <!-- Category & Title -->
+                <div>
+                    <span class="inline-block bg-primary/10 text-primary px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+                        {{ product.category.name }}
+                    </span>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                        {{ product.title }}
+                    </h1>
+                </div>
 
-                    <!-- Price Section -->
-                    <div class="price-section">
-                        <div class="current-price">₹{{ product.discounted_price }}</div>
+                <!-- Price Section -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+                    <div class="flex items-center gap-4 flex-wrap">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Current Price</p>
+                            <div class="text-4xl font-bold text-primary">₹{{ product.discounted_price }}</div>
+                        </div>
                         {% if product.selling_price != product.discounted_price %}
-                        <div class="original-price">₹{{ product.selling_price }}</div>
-                        <div class="discount-badge">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Original</p>
+                            <div class="text-2xl text-gray-400 line-through">₹{{ product.selling_price }}</div>
+                        </div>
+                        <div class="ml-auto bg-red-100 text-red-700 px-4 py-2 rounded-full font-bold text-lg">
                             {% widthratio product.selling_price|add:"-"|add:product.discounted_price product.selling_price 100 %}% OFF
                         </div>
                         {% endif %}
                     </div>
+                </div>
 
-                    <!-- Product Description -->
-                    <div class="description-section">
-                        <h5 class="section-title">Description</h5>
-                        <p class="description-text">{{ product.description }}</p>
-                        {% if product.prodapp %}
-                        <p class="prodapp-text">{{ product.prodapp }}</p>
-                        {% endif %}
-                    </div>
+                <!-- Description -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">About this product</h3>
+                    <p class="text-gray-700 leading-relaxed mb-4">{{ product.description }}</p>
+                    {% if product.prodapp %}
+                    <p class="text-gray-600 italic text-sm border-l-4 border-primary pl-4">{{ product.prodapp }}</p>
+                    {% endif %}
+                </div>
 
-                    <!-- Action Buttons -->
-                    <div class="action-buttons">
-                        <form action="/add-to-cart" class="d-inline w-100">
-                            <input type="hidden" name="prod_id" value="{{ product.id }}" />
-                            <button type="submit" class="btn btn-add-cart">
-                                <i class="fas fa-shopping-cart"></i> Add to Cart
-                            </button>
-                        </form>
-                        <form action="{% url 'buy-now' %}" class="d-inline w-100">
-                            <input type="hidden" name="prod_id" value="{{ product.id }}" />
-                            <button type="submit" class="btn btn-buy-now">
-                                <i class="fas fa-bolt"></i> Buy Now
-                            </button>
-                        </form>
-                    </div>
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <form action="/add-to-cart" method="get" class="w-full">
+                        <input type="hidden" name="prod_id" value="{{ product.id }}" />
+                        <button type="submit" class="w-full bg-gray-900 text-white py-4 rounded-lg font-semibold hover:bg-gray-800 transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                    </form>
+                    <form action="{% url 'buy-now' %}" method="post" class="w-full">
+                        {% csrf_token %}
+                        <input type="hidden" name="prod_id" value="{{ product.id }}" />
+                        <button type="submit" class="w-full bg-primary text-white py-4 rounded-lg font-semibold hover:bg-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                            <i class="fas fa-bolt"></i>
+                            Buy Now
+                        </button>
+                    </form>
+                </div>
 
-                    <!-- Price Alert Section -->
-                    <div class="price-alert-section">
-                        <h5 class="section-title">
-                            <i class="fas fa-bell"></i> Price Alert
-                        </h5>
-                        
-                        {% if existing_alert %}
-                        <div class="alert-info-card">
-                            <div class="alert-content">
-                                <i class="fas fa-check-circle"></i>
-                                <span>Alert set at ₹{{ existing_alert.target_price }} 
-                                {% if existing_alert.buy_when_drop %}
-                                    <span class="auto-buy-badge">Auto-buy enabled</span>
-                                {% endif %}
-                                </span>
+                <!-- Price Alert Section -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-200">
+                    <button 
+                        class="w-full flex items-center justify-between font-semibold text-gray-900 mb-4 hover:text-primary transition"
+                        onclick="document.getElementById('priceAlertForm').classList.toggle('hidden')"
+                    >
+                        <span class="flex items-center gap-2">
+                            <i class="fas fa-bell"></i>
+                            Price Alert
+                        </span>
+                        <i class="fas fa-chevron-down transition-transform" id="alertToggle"></i>
+                    </button>
+
+                    <!-- Existing Alert Info -->
+                    {% if existing_alert %}
+                    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-check-circle text-green-600"></i>
+                                <div>
+                                    <p class="text-sm font-medium text-green-900">Alert Active</p>
+                                    <p class="text-sm text-green-700">Set at ₹{{ existing_alert.target_price }}</p>
+                                    {% if existing_alert.buy_when_drop %}
+                                    <span class="inline-block mt-1 bg-green-600 text-white text-xs px-2 py-1 rounded">Auto-buy Enabled</span>
+                                    {% endif %}
+                                </div>
                             </div>
-                            <button class="btn-change" data-bs-toggle="collapse" data-bs-target="#priceAlertForm">
-                                <i class="fas fa-edit"></i> Change
-                            </button>
                         </div>
-                        {% endif %}
+                    </div>
+                    {% endif %}
 
-                        <div id="priceAlertForm" class="collapse {% if not existing_alert %}show{% endif %} mt-3">
-                            <form method="post" action="{% url 'set_price_alert' product.pk %}" class="alert-form">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label for="target_price">Target Price</label>
-                                    <div class="price-input-wrapper">
-                                        <span class="currency-symbol">₹</span>
-                                        <input 
-                                            type="number" 
-                                            id="target_price"
-                                            name="target_price" 
-                                            value="{% if existing_alert %}{{ existing_alert.target_price }}{% endif %}" 
-                                            step="0.01" 
-                                            min="1" 
-                                            required 
-                                            class="form-control"
-                                            placeholder="Enter your target price"
-                                        >
-                                    </div>
-                                </div>
-                                
-                                <div class="form-check-custom">
+                    <!-- Price Alert Form -->
+                    <div id="priceAlertForm" class="{% if existing_alert %}hidden{% endif %} space-y-4">
+                        <form method="post" action="{% url 'set_price_alert' product.pk %}" class="space-y-4">
+                            {% csrf_token %}
+                            
+                            <div>
+                                <label for="target_price" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Target Price
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-3 text-gray-500 font-semibold">₹</span>
                                     <input 
-                                        class="form-check-input" 
-                                        type="checkbox" 
-                                        value="1" 
-                                        id="buyWhenDrop{{ product.id }}" 
-                                        name="buy_when_drop" 
-                                        {% if existing_alert and existing_alert.buy_when_drop %}checked{% endif %}
+                                        type="number" 
+                                        id="target_price"
+                                        name="target_price" 
+                                        value="{% if existing_alert %}{{ existing_alert.target_price }}{% endif %}" 
+                                        step="0.01" 
+                                        min="1" 
+                                        required 
+                                        placeholder="Enter target price"
+                                        class="w-full pl-8 pr-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:border-transparent focus:ring-2 focus:ring-primary focus:bg-white transition-all text-gray-900"
                                     >
-                                    <label class="form-check-label" for="buyWhenDrop{{ product.id }}">
-                                        <i class="fas fa-shopping-bag"></i> Automatically purchase when price drops
-                                    </label>
                                 </div>
-                                
-                                <button type="submit" class="btn btn-set-alert">
-                                    <i class="fas fa-bell"></i> 
-                                    {% if existing_alert %}Update Alert{% else %}Set Alert{% endif %}
-                                </button>
-                            </form>
-                        </div>
+                            </div>
+
+                            <label class="flex items-center gap-3 cursor-pointer p-3 rounded-lg hover:bg-gray-50 transition">
+                                <input 
+                                    type="checkbox" 
+                                    name="buy_when_drop" 
+                                    value="1"
+                                    {% if existing_alert and existing_alert.buy_when_drop %}checked{% endif %}
+                                    class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary"
+                                >
+                                <span class="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <i class="fas fa-shopping-bag text-primary"></i>
+                                    Auto-buy when price drops
+                                </span>
+                            </label>
+
+                            <button type="submit" class="w-full bg-primary/10 text-primary py-3 rounded-lg font-semibold hover:bg-primary/20 transition-colors">
+                                <i class="fas fa-bell mr-2"></i>
+                                {% if existing_alert %}Update Alert{% else %}Set Alert{% endif %}
+                            </button>
+                        </form>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal for Image Zoom -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content modal-image">
-            <button type="button" class="btn-close-modal" data-bs-dismiss="modal" aria-label="Close">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="modal-body p-0">
-                <img src="{{ product.product_image.url }}" alt="{{ product.title }}" class="img-fluid">
-            </div>
+<!-- Image Zoom Modal -->
+<dialog id="imageModal" class="rounded-xl shadow-2xl max-w-3xl w-full">
+    <div class="bg-white rounded-xl overflow-hidden">
+        <button onclick="document.getElementById('imageModal').close()" class="absolute top-4 right-4 bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-black transition z-10">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="bg-gray-100 min-h-96 flex items-center justify-center p-4">
+            <img src="{{ product.product_image.url }}" alt="{{ product.title }}" class="max-h-96 max-w-full object-contain">
         </div>
     </div>
-</div>
+</dialog>
 
 <style>
-.product-detail-page {
-    background: #f8f9fa;
-    min-height: 100vh;
-}
-
-/* Image Gallery */
-.image-gallery {
-    position: relative;
-}
-
-.main-image {
-    position: relative;
-    background: white;
-    border-radius: 20px;
-    overflow: hidden;
-    cursor: pointer;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    transition: all 0.3s;
-}
-
-.main-image:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
-}
-
-.main-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.zoom-badge {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-size: 0.85rem;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.main-image:hover .zoom-badge {
-    opacity: 1;
-}
-
-/* Product Info Section */
-.product-info-section {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-}
-
-.category-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.product-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #222;
-    margin-bottom: 20px;
-    line-height: 1.2;
-}
-
-/* Price Section */
-.price-section {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 30px;
-    padding-bottom: 30px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.current-price {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #667eea;
-}
-
-.original-price {
-    font-size: 1.5rem;
-    color: #999;
-    text-decoration: line-through;
-}
-
-.discount-badge {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
-/* Description */
-.description-section {
-    margin-bottom: 30px;
-}
-
-.section-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.description-text {
-    color: #666;
-    line-height: 1.8;
-    font-size: 1rem;
-}
-
-.prodapp-text {
-    color: #888;
-    font-style: italic;
-    margin-top: 10px;
-}
-
-/* Action Buttons */
-.action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 40px;
-}
-
-.btn-add-cart, .btn-buy-now {
-    padding: 16px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1.05rem;
-    border: none;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.btn-add-cart {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.btn-add-cart:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-    color: white;
-}
-
-.btn-buy-now {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-}
-
-.btn-buy-now:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(240, 147, 251, 0.4);
-    color: white;
-}
-
-/* Price Alert Section */
-.price-alert-section {
-    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-    padding: 25px;
-    border-radius: 16px;
-    border: 2px solid #667eea30;
-}
-
-.alert-info-card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.alert-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #333;
-    font-weight: 600;
-}
-
-.alert-content i {
-    color: #4ade80;
-    font-size: 1.2rem;
-}
-
-.auto-buy-badge {
-    background: #fef3c7;
-    color: #92400e;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    margin-left: 8px;
-}
-
-.btn-change {
-    background: transparent;
-    border: 2px solid #667eea;
-    color: #667eea;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-change:hover {
-    background: #667eea;
-    color: white;
-}
-
-/* Alert Form */
-.alert-form {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-}
-
-.alert-form .form-group {
-    margin-bottom: 20px;
-}
-
-.alert-form label {
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-    display: block;
-}
-
-.price-input-wrapper {
-    position: relative;
-}
-
-.currency-symbol {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-weight: 700;
-    color: #667eea;
-    font-size: 1.1rem;
-}
-
-.alert-form .form-control {
-    padding: 12px 15px 12px 35px;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.alert-form .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    outline: none;
-}
-
-.form-check-custom {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.form-check-custom .form-check-input {
-    width: 20px;
-    height: 20px;
-    margin-top: 0;
-    cursor: pointer;
-}
-
-.form-check-custom .form-check-label {
-    margin-left: 10px;
-    cursor: pointer;
-    color: #555;
-    font-weight: 500;
-}
-
-.btn-set-alert {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-weight: 700;
-    font-size: 1rem;
-    transition: all 0.3s;
-}
-
-.btn-set-alert:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-}
-
-/* Modal */
-.modal-image {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-}
-
-.modal-image .modal-body {
-    padding: 0;
-}
-
-.modal-image img {
-    border-radius: 20px;
-}
-
-.btn-close-modal {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
-    background: white;
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.btn-close-modal:hover {
-    transform: scale(1.1);
-    background: #667eea;
-    color: white;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .product-title {
-        font-size: 1.8rem;
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
     }
-    
-    .current-price {
-        font-size: 2rem;
+
+    dialog {
+        animation: slideIn 0.3s ease-out;
     }
-    
-    .action-buttons {
-        grid-template-columns: 1fr;
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
-    
-    .product-info-section {
-        padding: 25px;
+
+    /* Smooth scroll for sticky positioning */
+    html {
+        scroll-behavior: smooth;
     }
-}
 </style>
-{% endblock main-content %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const alertToggle = document.getElementById('alertToggle');
+        const priceAlertForm = document.getElementById('priceAlertForm');
+        
+        if (alertToggle && priceAlertForm) {
+            alertToggle.addEventListener('click', function() {
+                const isHidden = priceAlertForm.classList.contains('hidden');
+                alertToggle.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+            });
+        }
+    });
+</script>
+{% endblock %}
 
 
 

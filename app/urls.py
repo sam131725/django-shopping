@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_view
 from .forms import LoginForm,MyPasswordResetForm,MyPasswordChangeForm,MySetPasswordForm
 from .views import logout_view
+from . import api_views
 
 urlpatterns = [
     path('', home, name='home'),
@@ -57,6 +58,15 @@ path('password-reset-complete/',
      name='password_reset_complete'),
 
 path('assistant/', views.assistant, name='assistant'),
+
+# API Routes
+path('api/products/', api_views.ProductListAPIView.as_view(), name='api-products'),
+path('api/categories/', api_views.CategoryListAPIView.as_view(), name='api-categories'),
+path('api/cart/', api_views.CartAPIView.as_view(), name='api-cart'),
+path('api/auth/csrf/', api_views.CSRFTokenAPIView.as_view(), name='api-csrf'),
+path('api/auth/login/', api_views.LoginAPIView.as_view(), name='api-login'),
+path('api/auth/logout/', api_views.LogoutAPIView.as_view(), name='api-logout'),
+path('api/auth/user/', api_views.UserAPIView.as_view(), name='api-user'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

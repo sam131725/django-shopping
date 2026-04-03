@@ -1,766 +1,1439 @@
 {% extends 'app/base.html' %}
 {% load static %}
-{% block title %}Home{% endblock title %}
+
+{% block title %}Sabhachik - Curated Styles, Jewellery, Groceries{% endblock title %}
 
 {% block main-content %}
-<div class="modern-homepage">
-  <!-- Hero Section with Slideshow -->
-  <section class="hero-slideshow-section">
-    <div class="container-fluid p-0">
-      <div id="heroSlideshow" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="3000">
-        <div class="carousel-indicators">
-          {% for product in slideshow_products %}
-          <button type="button" data-bs-target="#heroSlideshow" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %} aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
-          {% endfor %}
-        </div>
-        <div class="carousel-inner">
-          {% for product in slideshow_products %}
-          <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <div class="slide-overlay"></div>
-            <img src="{{ product.product_image.url }}" class="d-block w-100 slide-image" alt="{{ product.title }}">
-            <div class="carousel-caption-custom">
-              <div class="slide-content">
-                <span class="slide-category">{{ product.category.name }}</span>
-                <h1 class="slide-title">{{ product.title }}</h1>
-                <p class="slide-price">
-                  <span class="price-tag">₹{{ product.discounted_price }}</span>
-                  {% if product.selling_price != product.discounted_price %}
-                  <span class="original-price">₹{{ product.selling_price }}</span>
-                  {% endif %}
-                </p>
-                <div class="slide-actions">
-                  <a href="{% url 'product-detail' product.id %}" class="btn btn-slide-primary">
-                    <i class="fas fa-eye"></i> View Product
-                  </a>
-                  <a href="{% url 'add-to-cart' %}?prod_id={{ product.id }}" class="btn btn-slide-secondary">
-                    <i class="fas fa-shopping-cart"></i> Add to Cart
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroSlideshow" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroSlideshow" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
-      </div>
+<!-- Luxury Static Hero Section with Blurred Background Image -->
+<section class="relative w-full min-h-[600px] md:min-h-screen flex items-center justify-center overflow-hidden" 
+         style="background: linear-gradient(135deg, rgba(62, 47, 35, 0.4) 0%, rgba(200, 162, 122, 0.2) 100%), url('{{ MEDIA_URL }}products_new/background.jpg') center/cover no-repeat; filter: contrast(1.05) brightness(0.95);">
+    
+    <!-- Decorative blurred overlay -->
+    <div class="absolute inset-0 opacity-40" style="background: linear-gradient(135deg, rgba(232, 213, 196, 0.15), rgba(200, 162, 122, 0.1));">
     </div>
-  </section>
-
-  <!-- AI Assistant Promo Banner -->
-  <section class="ai-promo-banner">
-    <div class="container">
-      <div class="promo-content">
-        <div class="promo-icon">
-          <i class="fas fa-robot"></i>
+    
+    <!-- Hero Content Container -->
+    <div class="relative z-10 text-center px-4 md:px-8 max-w-3xl mx-auto space-y-8 md:space-y-10 animate-fade-in-up">
+        
+        <!-- Logo -->
+        {% if MEDIA_URL %}
+        <div class="flex justify-center mb-6 md:mb-8 opacity-0 animate-fade-in-down" style="animation: fadeInDown 0.8s ease-out forwards;">
+            <img src="{{ MEDIA_URL }}products_new/logo.jpg" 
+                 alt="Sabhachik Logo" 
+                 class="h-20 md:h-28 w-auto rounded-2xl shadow-2xl" 
+                 style="object-fit: contain; backdrop-filter: blur(10px);">
         </div>
-        <div class="promo-text">
-          <h3>Shopping Made Easy with Genie!</h3>
-          <p>Ask anything about products, get personalized recommendations, or chat with our AI assistant</p>
+        {% endif %}
+        
+        <!-- Main Brand Title -->
+        <div class="space-y-4 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.2s forwards;">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-light text-white tracking-tight leading-tight" 
+                style="text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.3); letter-spacing: -0.02em;">
+                Sabhachik
+            </h1>
+            
+            <!-- Subtitle -->
+            <p class="text-lg md:text-2xl text-white/90 font-light leading-relaxed max-w-2xl mx-auto" 
+               style="text-shadow: 1px 2px 8px rgba(0, 0, 0, 0.2);">
+                Curated Styles, Jewellery, Groceries — All in One Place
+            </p>
         </div>
-        <a href="{% url 'assistant' %}" class="btn btn-promo">
-          <i class="fas fa-comments"></i> Chat with Genie
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Features Section -->
-  <section class="features-section">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-              <i class="fas fa-undo-alt"></i>
-            </div>
-            <h5>Money Back Guarantee</h5>
-            <p>30 Days hassle-free returns</p>
-          </div>
+        
+        <!-- Divider -->
+        <div class="flex items-center justify-center gap-4 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.4s forwards;">
+            <div class="h-px w-12 md:w-16" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);"></div>
+            <span class="text-sm md:text-base font-light text-white/70 uppercase tracking-widest">Premium Selection</span>
+            <div class="h-px w-12 md:w-16" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);"></div>
         </div>
-        <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-              <i class="fas fa-shipping-fast"></i>
-            </div>
-            <h5>Free Shipping</h5>
-            <p>On orders over ₹999</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="feature-card">
-            <div class="feature-icon" style="background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);">
-              <i class="fas fa-tags"></i>
-            </div>
-            <h5>Special Offers</h5>
-            <p>Extra 5% off on all items</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Categories Section -->
-  <section class="categories-section">
-    <div class="container">
-      <div class="section-header text-center mb-5">
-        <h2 class="section-title">Shop by <span class="gradient-text">Categories</span></h2>
-        <p class="section-subtitle">Explore our wide range of products</p>
-      </div>
-      <div class="row g-3">
-        {% for cat in main_categories|slice:":6" %}
-        <div class="col-6 col-md-4 col-lg-2">
-          <a href="{% url 'category' cat.name %}" class="category-card">
-            <div class="category-icon">
-              {% if 'cloth' in cat.name|lower or 'fashion' in cat.name|lower %}
-                <i class="fas fa-tshirt"></i>
-              {% elif 'electro' in cat.name|lower %}
-                <i class="fas fa-laptop"></i>
-              {% elif 'shoe' in cat.name|lower %}
-                <i class="fas fa-shoe-prints"></i>
-              {% elif 'watch' in cat.name|lower %}
-                <i class="fas fa-clock"></i>
-              {% elif 'jewel' in cat.name|lower %}
-                <i class="fas fa-gem"></i>
-              {% elif 'beauty' in cat.name|lower or 'health' in cat.name|lower %}
-                <i class="fas fa-spa"></i>
-              {% elif 'kid' in cat.name|lower or 'bab' in cat.name|lower %}
-                <i class="fas fa-baby"></i>
-              {% elif 'sport' in cat.name|lower %}
-                <i class="fas fa-football-ball"></i>
-              {% elif 'home' in cat.name|lower or 'garden' in cat.name|lower %}
-                <i class="fas fa-home"></i>
-              {% else %}
-                <i class="fas fa-shopping-bag"></i>
-              {% endif %}
-            </div>
-            <span class="category-name">{{ cat.name }}</span>
-          </a>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <!-- New Products Section -->
-  <section class="products-section" id="new-products">
-    <div class="container">
-      <div class="section-header text-center mb-5">
-        <h2 class="section-title">New <span class="gradient-text">Arrivals</span></h2>
-        <p class="section-subtitle">Check out our latest products</p>
-      </div>
-      <div class="row g-4">
-        {% for product in new_products %}
-        <div class="col-6 col-md-4 col-lg-3">
-          <div class="product-card-modern">
-            <div class="product-image-container">
-              <img src="{{ product.product_image.url }}" alt="{{ product.title }}" class="product-image">
-              <div class="product-badge">New</div>
-              <div class="product-overlay">
-                <a href="{% url 'product-detail' product.id %}" class="btn-quick-view">Quick View</a>
-              </div>
-            </div>
-            <div class="product-info">
-              <h6 class="product-title">{{ product.title }}</h6>
-              <div class="product-price">
-                <span class="price-current">₹{{ product.discounted_price }}</span>
-                {% if product.selling_price != product.discounted_price %}
-                <span class="price-original">₹{{ product.selling_price }}</span>
-                {% endif %}
-              </div>
-              <div class="product-actions">
-                <a href="{% url 'add-to-cart' %}?prod_id={{ product.id }}" class="btn-add-cart">
-                  <i class="fas fa-shopping-cart"></i> Add to Cart
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta-section">
-    <div class="container">
-      <div class="cta-card">
-        <div class="row align-items-center">
-          <div class="col-md-8">
-            <h3 class="cta-title">Need Shopping Help?</h3>
-            <p class="cta-text">Try our AI-powered ShopGenie assistant for personalized recommendations!</p>
-          </div>
-          <div class="col-md-4 text-md-end">
-            <a href="{% url 'assistant' %}" class="btn btn-cta">
-              <i class="fas fa-robot"></i> Chat with ShopGenie
+        
+        <!-- CTA Button -->
+        <div class="flex justify-center gap-4 pt-4 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.6s forwards;">
+            <a href="#featured" 
+               class="px-10 md:px-14 py-4 md:py-5 rounded-full font-semibold text-white text-base md:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-2xl group flex items-center gap-3"
+               style="background: linear-gradient(135deg, #C8A27A, #E8D5C4); transform-style: preserve-3d;">
+                Explore Collection
+                <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>
             </a>
-          </div>
+            <a href="{% url 'home' %}" 
+               class="px-10 md:px-14 py-4 md:py-5 rounded-full font-semibold text-white/90 text-base md:text-lg border-2 border-white/50 hover:border-white hover:bg-white/10 transition-all duration-300 hover:scale-105 backdrop-filter"
+               style="background-color: rgba(255,255,255,0.05);">
+                Shop Now
+            </a>
         </div>
-      </div>
+        
+        <!-- Trust Badges -->
+        <div class="flex flex-wrap gap-4 md:gap-6 justify-center pt-8 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.8s forwards;">
+            <div class="flex items-center gap-2 text-white/80 group cursor-pointer hover:text-white transition-all duration-300">
+                <i class="fas fa-shield-alt text-xl md:text-2xl"></i>
+                <span class="text-sm md:text-base font-light">Secure & Trusted</span>
+            </div>
+            <div class="hidden md:flex items-center text-white/40">|</div>
+            <div class="flex items-center gap-2 text-white/80 group cursor-pointer hover:text-white transition-all duration-300">
+                <i class="fas fa-truck text-xl md:text-2xl"></i>
+                <span class="text-sm md:text-base font-light">Free Shipping</span>
+            </div>
+            <div class="hidden md:flex items-center text-white/40">|</div>
+            <div class="flex items-center gap-2 text-white/80 group cursor-pointer hover:text-white transition-all duration-300">
+                <i class="fas fa-undo text-xl md:text-2xl"></i>
+                <span class="text-sm md:text-base font-light">Easy Returns</span>
+            </div>
+        </div>
     </div>
-  </section>
-</div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce" style="animation: bounce 2s infinite;">
+        <i class="fas fa-chevron-down text-white/60 text-2xl"></i>
+    </div>
+</section>
 
+<!-- Customer Reviews Section -->
+<section class="relative py-20 md:py-32 px-4 md:px-8" style="background-color: #FDFBF9; background-image: radial-gradient(circle at 20% 80%, rgba(232, 213, 196, 0.2) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(200, 162, 122, 0.15) 0%, transparent 50%);">
+    
+    <div class="max-w-6xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 md:mb-20 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out forwards;">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-light text-text-dark mb-4">
+                What Our Customers Say
+            </h2>
+            <p class="text-lg md:text-xl text-text-dark/60 font-light">
+                Loved by thousands of satisfied customers worldwide
+            </p>
+        </div>
+        
+        <!-- Reviews Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            
+            <!-- Review Card 1 -->
+            <div class="group opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.1s forwards;">
+                <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col justify-between hover:-translate-y-2"
+                     style="border: 1px solid rgba(200, 162, 122, 0.15); transform-style: preserve-3d;">
+                    
+                    <!-- Stars -->
+                    <div class="flex gap-1 mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    
+                    <!-- Review Text -->
+                    <p class="text-text-dark/70 font-light text-base leading-relaxed mb-6 flex-grow">
+                        "The quality is exceptional. Every piece feels premium and the attention to detail is remarkable. I've recommended Sabhachik to all my friends!"
+                    </p>
+                    
+                    <!-- User Info -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg" 
+                             style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                            SR
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text-dark">Samantha Roy</p>
+                            <p class="text-sm text-text-dark/50">Verified Buyer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Review Card 2 -->
+            <div class="group opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.2s forwards;">
+                <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col justify-between hover:-translate-y-2"
+                     style="border: 1px solid rgba(200, 162, 122, 0.15); transform-style: preserve-3d;">
+                    
+                    <!-- Stars -->
+                    <div class="flex gap-1 mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    
+                    <!-- Review Text -->
+                    <p class="text-text-dark/70 font-light text-base leading-relaxed mb-6 flex-grow">
+                        "Fantastic experience from browsing to checkout. The delivery was quick and packaging was beautiful. Highly recommended!"
+                    </p>
+                    
+                    <!-- User Info -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg" 
+                             style="background: linear-gradient(135deg, #E8D5C4, #C8A27A);">
+                            AP
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text-dark">Arjun Patel</p>
+                            <p class="text-sm text-text-dark/50">Verified Buyer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Review Card 3 -->
+            <div class="group opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.3s forwards;">
+                <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-all duration-500 h-full flex flex-col justify-between hover:-translate-y-2"
+                     style="border: 1px solid rgba(200, 162, 122, 0.15); transform-style: preserve-3d;">
+                    
+                    <!-- Stars -->
+                    <div class="flex gap-1 mb-4">
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                        <i class="fas fa-star text-yellow-400"></i>
+                    </div>
+                    
+                    <!-- Review Text -->
+                    <p class="text-text-dark/70 font-light text-base leading-relaxed mb-6 flex-grow">
+                        "Sabhachik has become my go-to for everything. The variety is incredible and the prices are fair. Love the curated collections!"
+                    </p>
+                    
+                    <!-- User Info -->
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg" 
+                             style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                            MP
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text-dark">Meera Krishnan</p>
+                            <p class="text-sm text-text-dark/50">Verified Buyer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CTA Below Reviews -->
+        <div class="text-center mt-16 md:mt-20 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.4s forwards;">
+            <p class="text-lg text-text-dark/70 mb-6 font-light">Join thousands of satisfied customers</p>
+            <a href="#featured" 
+               class="inline-block px-12 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl"
+               style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                Start Shopping Today
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Luxury Hero & Reviews Styles -->
 <style>
-.modern-homepage {
-  background: #f8f9fa;
-  min-height: 100vh;
-}
-
-/* Hero Slideshow Section */
-.hero-slideshow-section {
-  position: relative;
-  margin-bottom: 40px;
-}
-
-.carousel-item {
-  height: 600px;
-  position: relative;
-}
-
-.slide-image {
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.slide-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.5) 100%);
-  z-index: 1;
-}
-
-.carousel-caption-custom {
-  position: absolute;
-  top: 50%;
-  left: 10%;
-  transform: translateY(-50%);
-  text-align: left;
-  z-index: 2;
-  max-width: 600px;
-}
-
-.slide-content {
-  animation: slideInLeft 1s ease;
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.slide-category {
-  display: inline-block;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 25px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  margin-bottom: 15px;
-}
-
-.slide-title {
-  font-size: 3.5rem;
-  font-weight: 900;
-  color: white;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-  line-height: 1.2;
-}
-
-.slide-price {
-  margin-bottom: 30px;
-}
-
-.price-tag {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #4ade80;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-.original-price {
-  font-size: 1.5rem;
-  color: #fca5a5;
-  text-decoration: line-through;
-  margin-left: 15px;
-}
-
-.slide-actions {
-  display: flex;
-  gap: 15px;
-}
-
-.btn-slide-primary, .btn-slide-secondary {
-  padding: 14px 32px;
-  border-radius: 50px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.3s;
-  display: inline-block;
-  border: 2px solid white;
-}
-
-.btn-slide-primary {
-  background: white;
-  color: #667eea;
-}
-
-.btn-slide-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(255,255,255,0.3);
-  color: #667eea;
-}
-
-.btn-slide-secondary {
-  background: transparent;
-  color: white;
-}
-
-.btn-slide-secondary:hover {
-  background: white;
-  color: #667eea;
-}
-
-.carousel-indicators button {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin: 0 5px;
-}
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  width: 50px;
-  height: 50px;
-  background-color: rgba(255,255,255,0.3);
-  border-radius: 50%;
-}
-
-.carousel-control-prev:hover .carousel-control-prev-icon,
-.carousel-control-next:hover .carousel-control-next-icon {
-  background-color: rgba(255,255,255,0.6);
-}
-
-/* AI Promo Banner */
-.ai-promo-banner {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 30px 0;
-  margin-bottom: 40px;
-}
-
-.promo-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 30px;
-}
-
-.promo-icon {
-  width: 80px;
-  height: 80px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  color: white;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-.promo-text {
-  flex: 1;
-  color: white;
-}
-
-.promo-text h3 {
-  font-size: 1.8rem;
-  font-weight: 800;
-  margin-bottom: 5px;
-}
-
-.promo-text p {
-  font-size: 1.1rem;
-  opacity: 0.95;
-  margin: 0;
-}
-
-.btn-promo {
-  background: white;
-  color: #667eea;
-  padding: 14px 32px;
-  border-radius: 50px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.btn-promo:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  color: #667eea;
-}
-
-/* Responsive for Slideshow */
-@media (max-width: 768px) {
-  .carousel-item {
-    height: 400px;
-  }
-  
-  .slide-title {
-    font-size: 2rem;
-  }
-  
-  .price-tag {
-    font-size: 1.8rem;
-  }
-  
-  .carousel-caption-custom {
-    left: 5%;
-    max-width: 90%;
-  }
-  
-  .slide-actions {
-    flex-direction: column;
-  }
-  
-  .btn-slide-primary, .btn-slide-secondary {
-    width: 100%;
-    text-align: center;
-  }
-  
-  .promo-content {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .promo-icon {
-    margin: 0 auto;
-  }
-}
-
-/* Features Section */
-.features-section {
-  padding: 60px 0;
-  background: white;
-}
-
-.feature-card {
-  text-align: center;
-  padding: 30px 20px;
-  border-radius: 16px;
-  background: white;
-  transition: all 0.3s;
-  height: 100%;
-}
-
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.feature-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 20px;
-  color: white;
-  font-size: 1.8rem;
-}
-
-.feature-card h5 {
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.feature-card p {
-  color: #666;
-  margin: 0;
-}
-
-/* Categories Section */
-.categories-section {
-  padding: 60px 0;
-}
-
-.section-header {
-  margin-bottom: 40px;
-}
-
-.section-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.section-subtitle {
-  color: #666;
-  font-size: 1.1rem;
-}
-
-.category-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 25px 15px;
-  background: white;
-  border-radius: 16px;
-  text-decoration: none;
-  transition: all 0.3s;
-  border: 2px solid transparent;
-}
-
-.category-card:hover {
-  transform: translateY(-5px);
-  border-color: #667eea;
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
-}
-
-.category-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  margin-bottom: 12px;
-}
-
-.category-name {
-  color: #333;
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-/* Products Section */
-.products-section {
-  padding: 60px 0;
-}
-
-.product-card-modern {
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  transition: all 0.3s;
-  height: 100%;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.product-card-modern:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-
-.product-image-container {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1;
-}
-
-.product-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s;
-}
-
-.product-card-modern:hover .product-image {
-  transform: scale(1.1);
-}
-
-.product-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  z-index: 1;
-}
-
-.product-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(102, 126, 234, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.product-card-modern:hover .product-overlay {
-  opacity: 1;
-}
-
-.btn-quick-view {
-  background: white;
-  color: #667eea;
-  padding: 10px 24px;
-  border-radius: 25px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.btn-quick-view:hover {
-  transform: scale(1.05);
-  color: #667eea;
-}
-
-.product-info {
-  padding: 20px;
-}
-
-.product-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 10px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  min-height: 2.8em;
-}
-
-.product-price {
-  margin-bottom: 15px;
-}
-
-.price-current {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #667eea;
-}
-
-.price-original {
-  font-size: 0.9rem;
-  color: #999;
-  text-decoration: line-through;
-  margin-left: 8px;
-}
-
-.btn-add-cart {
-  width: 100%;
-  padding: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
-  transition: all 0.3s;
-}
-
-.btn-add-cart:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
-  color: white;
-}
-
-/* CTA Section */
-.cta-section {
-  padding: 60px 0 80px;
-}
-
-.cta-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 50px;
-  border-radius: 20px;
-  color: white;
-}
-
-.cta-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.cta-text {
-  font-size: 1.1rem;
-  opacity: 0.95;
-  margin: 0;
-}
-
-.btn-cta {
-  background: white;
-  color: #667eea;
-  padding: 14px 32px;
-  border-radius: 50px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s;
-  display: inline-block;
-}
-
-.btn-cta:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  color: #667eea;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-  }
-  
-  .section-title {
-    font-size: 2rem;
-  }
-  
-  .cta-card {
-    padding: 30px;
-    text-align: center;
-  }
-  
-  .cta-title {
-    font-size: 1.5rem;
-  }
-}
+    /* Fade In Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(12px);
+        }
+    }
+    
+    .animate-fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+    
+    .animate-fade-in-down {
+        animation: fadeInDown 0.8s ease-out forwards;
+    }
+    
+    /* Hero Section Styling */
+    .min-h-screen {
+        min-height: 100vh;
+    }
+    
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* Review Cards 3D Effects */
+    .group {
+        perspective: 1000px;
+    }
+    
+    /* Performance Optimizations */
+    section, div {
+        backface-visibility: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        section {
+            margin: 0;
+            padding: 0;
+        }
+    }
+</style>
+
+
+
+<!-- 3D Styles & Animations -->
+<style>
+    /* 3D Perspective */
+    .perspective {
+        perspective: 1200px;
+    }
+
+    /* 3D Product Card Hover Effects - Subtle for Luxury Feel */
+    .product-card-3d {
+        transition: transform 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    .product-card-3d:hover {
+        transform: translateY(-8px) rotateX(3deg) rotateZ(1deg) scale(1.01);
+    }
+
+    /* 3D Button Effects - Elegant and Subtle */
+    .cta-3d {
+        transform-style: preserve-3d;
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+        position: relative;
+    }
+
+    .cta-3d:hover {
+        transform: translateZ(8px) scale(1.03);
+        box-shadow: 0 15px 35px rgba(200, 162, 122, 0.25);
+    }
+
+    .cta-3d:active {
+        transform: translateZ(2px) scale(0.98);
+    }
+
+    /* Swiper Pagination Custom Styling */
+    .product-swiper-pagination {
+        display: flex !important;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .product-swiper-pagination .swiper-pagination-bullet {
+        background-color: rgba(200, 162, 122, 0.3) !important;
+        opacity: 1 !important;
+        width: 8px;
+        height: 8px;
+        margin: 0 !important;
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+        cursor: pointer;
+    }
+    
+    .product-swiper-pagination .swiper-pagination-bullet-active {
+        background-color: #C8A27A !important;
+        width: 24px;
+        border-radius: 4px;
+        transform: scale(1.2);
+    }
+
+    /* Fade in animations - Subtle and elegant */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .swiper-slide {
+        opacity: 0;
+        animation: scaleIn 0.6s ease-out forwards;
+    }
+
+    .swiper-slide-active {
+        animation: scaleIn 0.6s ease-out forwards;
+    }
+
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Text transition smoothness */
+    #hero-title, #hero-description, #hero-price, #hero-original-price, #hero-savings, #hero-category {
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    }
+
+    /* 3D Product Card Effects - Subtle and elegant */
+    .product-card {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        position: relative;
+    }
+
+    .product-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(200, 162, 122, 0.08) 0%, transparent 100%);
+        opacity: 0;
+        border-radius: 1rem;
+        pointer-events: none;
+        z-index: 10;
+        transition: opacity 0.4s ease-out;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px) rotateX(6deg) rotateZ(1deg) scale(1.01);
+        box-shadow: 0 20px 50px rgba(200, 162, 122, 0.2), 0 0 30px rgba(200, 162, 122, 0.08);
+    }
+
+    .product-card:hover::before {
+        opacity: 1;
+    }
+
+    /* 3D Category Items - Subtle elevate effect */
+    .category-item {
+        transform-style: preserve-3d;
+        perspective: 800px;
+        position: relative;
+    }
+
+    .category-item::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 30% 30%, rgba(232, 213, 196, 0.3) 0%, transparent 70%);
+        border-radius: 1rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease-out;
+    }
+
+    .category-item:hover {
+        transform: translateY(-6px) rotateX(3deg) rotateY(3deg);
+        box-shadow: 0 12px 24px rgba(200, 162, 122, 0.15);
+        background-color: rgba(200, 162, 122, 0.12) !important;
+    }
+
+    .category-item:hover::after {
+        opacity: 1;
+    }
+
+    /* Section Headers Animation */
+    .section-header {
+        animation: fadeInUp 0.8s ease-out 0.3s forwards;
+    }
+
+    /* Staggered Product Card Animations */
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px) rotateX(20deg);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) rotateX(0deg);
+        }
+    }
+
+    .swiper-slide:nth-child(1) .product-card {
+        animation: slideInUp 0.7s ease-out 0.1s forwards;
+    }
+
+    .swiper-slide:nth-child(2) .product-card {
+        animation: slideInUp 0.7s ease-out 0.25s forwards;
+    }
+
+    .swiper-slide:nth-child(3) .product-card {
+        animation: slideInUp 0.7s ease-out 0.4s forwards;
+    }
+
+    .swiper-slide:nth-child(4) .product-card {
+        animation: slideInUp 0.7s ease-out 0.55s forwards;
+    }
+
+    .swiper-slide:nth-child(5) .product-card {
+        animation: slideInUp 0.7s ease-out 0.7s forwards;
+    }
+
+    .swiper-slide:nth-child(6) .product-card {
+        animation: slideInUp 0.7s ease-out 0.85s forwards;
+    }
+
+    /* Product Image 3D Effect - Subtle zoom on hover */
+    .product-card img {
+        transition: transform 0.8s cubic-bezier(0.23, 1, 0.320, 1), filter 0.8s ease-out;
+        transform-origin: center;
+    }
+
+    .product-card:hover img {
+        transform: scale(1.08) rotate(2deg);
+        filter: brightness(1.05) contrast(1.05);
+    }
+
+    /* Swiper fade effect - smooth crossfade */
+    .swiper-slide {
+        opacity: 0;
+        transition: opacity 1.2s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    .swiper-slide-active {
+        opacity: 1;
+    }
+
+    /* Hero image animation on slide change */
+    .product-hero-swiper .swiper-slide-active {
+        animation: heroImageFadeIn 1s cubic-bezier(0.23, 1, 0.320, 1) forwards;
+    }
+
+    @keyframes heroImageFadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Responsive 3D on Mobile */
+    @media (max-width: 768px) {
+        .product-card:hover {
+            transform: translateY(-8px) scale(1.01);
+        }
+
+        .category-item:hover {
+            transform: translateY(-4px);
+        }
+    }
+
+    /* Glow Effect for AI Section */
+    .ai-section-glow {
+        position: relative;
+    }
+
+    .ai-section-glow::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(200, 162, 122, 0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px) translateX(0px);
+        }
+        25% {
+            transform: translateY(-20px) translateX(20px);
+        }
+        50% {
+            transform: translateY(-40px) translateX(0px);
+        }
+        75% {
+            transform: translateY(-20px) translateX(-20px);
+        }
+    }
+
+    /* Button 3D Press Effect */
+    button, a.px-6, a.px-8 {
+        transition: all 0.2s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    button:active, a.px-6:active, a.px-8:active {
+        transform: scale(0.95) translateZ(-2px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Floating Animation */
+    @keyframes floatingCard {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .floating-element {
+        animation: floatingCard 3s ease-in-out infinite;
+    }
+
+    /* Message slide-in animation */
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px) translateZ(0);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0) translateZ(0);
+        }
+    }
+
+    .animate-slide-in-left {
+        animation: slideInLeft 0.4s ease-out forwards;
+    }
+
+    /* Text shimmer effect on hover */
+    @keyframes shimmer {
+        0% {
+            background-position: -1000px 0;
+        }
+        100% {
+            background-position: 1000px 0;
+        }
+    }
+
+    .shimmer-text {
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        background-size: 1000px 100%;
+    }
+
+    /* Responsive 3D adjustments */
+    @media (max-width: 768px) {
+        .product-card:hover {
+            transform: translateY(-8px) scale(1.01);
+        }
+
+        .ai-section-glow::before {
+            top: -30%;
+            right: -30%;
+            width: 150%;
+            height: 150%;
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    }
+
+    /* Performance optimizations */
+    .product-card,
+    .category-item,
+    .product-card-3d {
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Hero carousel loading state */
+    .swiper-slide-duplicate {
+        opacity: 0;
+    }
+
+    .swiper-slide-visible {
+        opacity: 1;
+    }
+</style>
+
+<!-- 3D Product Carousel with Enhanced Dynamic Updates -->
+<script>
+// Product data structure for dynamic slide updates
+const productsData = [
+    {% for product in slideshow_products %}
+    {
+        title: "{{ product.title|escapejs }}",
+        category: "{{ product.category.name|escapejs }}",
+        price: {{ product.discounted_price }},
+        originalPrice: {{ product.selling_price }},
+        imageUrl: "{{ product.product_image.url|escapejs }}",
+        productId: {{ product.id }},
+        description: "{{ product.description|truncatewords:20|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Product Hero Swiper with enhanced settings
+    const productSwiper = new Swiper('.product-hero-swiper', {
+        slidesPerView: 1,
+        loop: true,
+        autoplay: {
+            delay: 4000,  // Changed from 5000 to 4000ms for more dynamic feel
+            disableOnInteraction: false,
+            stopOnLastSlide: false,
+        },
+        effect: 'fade',
+        fadeEffect: {
+            crossFade: true,
+        },
+        speed: 1000,  // Smooth transition speed
+        navigation: {
+            nextEl: '.product-swiper-next',
+            prevEl: '.product-swiper-prev',
+        },
+        pagination: {
+            el: '.product-swiper-pagination',
+            clickable: true,
+            dynamicBullets: true,
+        },
+        on: {
+            slideChange: function() {
+                const realIndex = this.realIndex;
+                
+                // Update slide counter
+                const currentCounter = document.querySelector('.product-slide-current');
+                if (currentCounter) {
+                    currentCounter.textContent = realIndex + 1;
+                }
+                
+                // Animate hero content transition
+                const heroContent = document.getElementById('hero-content');
+                if (heroContent) {
+                    // Fade out
+                    heroContent.style.opacity = '0.3';
+                    heroContent.style.transform = 'translateY(8px)';
+                    
+                    // Update content after fade
+                    setTimeout(() => {
+                        updateHeroContent(realIndex);
+                        // Fade in with animation
+                        heroContent.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        heroContent.style.opacity = '1';
+                        heroContent.style.transform = 'translateY(0)';
+                    }, 200);
+                }
+            },
+            slideChangeTransitionStart: function() {
+                // Trigger image parallax on slide start
+                const activeSlide = document.querySelector('.product-hero-swiper .swiper-slide-active img');
+                if (activeSlide) {
+                    activeSlide.style.transform = 'scale(0.98)';
+                }
+            },
+            slideChangeTransitionEnd: function() {
+                // Reset image scale after transition
+                const activeSlide = document.querySelector('.product-hero-swiper .swiper-slide-active img');
+                if (activeSlide) {
+                    activeSlide.style.transform = 'scale(1)';
+                }
+            }
+        }
+    });
+
+    // Enhanced dynamic content updater
+    window.updateHeroContent = function(index) {
+        if (index >= productsData.length) return;
+        
+        const product = productsData[index];
+        
+        // Update title with animation
+        const titleEl = document.getElementById('hero-title');
+        if (titleEl) {
+            titleEl.textContent = product.title;
+            titleEl.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+        }
+        
+        // Update category badge
+        const categoryEl = document.getElementById('hero-category');
+        if (categoryEl) {
+            categoryEl.textContent = product.category;
+            categoryEl.style.transition = 'all 0.5s ease-out';
+        }
+        
+        // Update price
+        const priceEl = document.getElementById('hero-price');
+        if (priceEl) {
+            priceEl.textContent = '₹' + product.price;
+            priceEl.style.transition = 'all 0.5s ease-out';
+        }
+        
+        // Update original price
+        const originalPriceEl = document.getElementById('hero-original-price');
+        if (originalPriceEl && product.originalPrice !== product.price) {
+            originalPriceEl.textContent = '₹' + product.originalPrice;
+            originalPriceEl.style.display = 'inline';
+            originalPriceEl.style.transition = 'all 0.5s ease-out';
+        } else if (originalPriceEl) {
+            originalPriceEl.style.display = 'none';
+        }
+        
+        // Update savings badge
+        const savingsEl = document.getElementById('hero-savings');
+        if (savingsEl && product.originalPrice > product.price) {
+            const savings = product.originalPrice - product.price;
+            const savingPercent = Math.round((savings / product.originalPrice) * 100);
+            savingsEl.textContent = 'Save ₹' + savings + ' (' + savingPercent + '%)';
+            savingsEl.style.display = 'inline-block';
+            savingsEl.style.transition = 'all 0.5s ease-out';
+        } else if (savingsEl) {
+            savingsEl.style.display = 'none';
+        }
+        
+        // Update product view link
+        const viewBtn = document.querySelector('a[href*="product-detail"]');
+        if (viewBtn) {
+            const newUrl = `/product/${product.productId}/`;
+            viewBtn.href = newUrl;
+            viewBtn.style.transition = 'all 0.3s ease-out';
+        }
+    };
+
+    // Initialize with first product
+    updateHeroContent(0);
+
+    // Total slides
+    const totalSlides = document.querySelectorAll('.product-hero-swiper .swiper-slide').length;
+    const totalCounter = document.querySelector('.product-slide-total');
+    if (totalCounter) {
+        totalCounter.textContent = totalSlides;
+    }
+});
+</script>
+
+<!-- Enhanced 3D Effects & Interactions Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 3D Tilt Effect on Product Cards with Mouse Tracking
+    const productCards = document.querySelectorAll('.product-card');
+    
+    productCards.forEach(card => {
+        card.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 10;
+            const rotateY = (centerX - x) / 10;
+            
+            // Apply 3D tilt on desktop only
+            if (window.innerWidth > 768) {
+                this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(10px)`;
+            }
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            if (window.innerWidth > 768) {
+                this.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)';
+            }
+        });
+    });
+
+    // Initialize Swiper for Featured Products
+    const swiper = new Swiper('.swiper-container', {
+        slidesPerView: 1,
+        spaceBetween: 20,
+        loop: true,
+        autoplay: {
+            delay: 6000,
+            disableOnInteraction: true,
+        },
+        breakpoints: {
+            640: {
+                slidesPerView: 2,
+                spaceBetween: 15,
+            },
+            1024: {
+                slidesPerView: 3,
+                spaceBetween: 20,
+            },
+            1280: {
+                slidesPerView: 4,
+                spaceBetween: 20,
+            }
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+            dynamicBullets: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+        observer: true,
+        observeParents: true,
+    });
+
+    // Scroll Animation for Section Headers
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.animation = 'fadeInUp 0.8s ease-out 0.3s forwards';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all animatable elements
+    document.querySelectorAll('.section-header, .category-item, .product-card').forEach(el => {
+        if (el.style.animation === '' || !el.style.opacity) {
+            observer.observe(el);
+        }
+    });
+
+    // Parallax effect on hero section images
+    const heroImages = document.querySelectorAll('.product-hero-swiper img');
+    
+    window.addEventListener('scroll', function(e) {
+        const scrollY = window.pageYOffset;
+        
+        heroImages.forEach(img => {
+            const elementRect = img.getBoundingClientRect();
+            if (elementRect.top < window.innerHeight) {
+                const parallaxValue = (scrollY - img.offsetTop) * 0.5;
+                img.style.transform = `translateY(${parallaxValue}px)`;
+            }
+        });
+    });
+
+    // 3D Category Icons on Hover
+    const categoryIcons = document.querySelectorAll('.category-item .fa-tshirt, .category-item .fa-laptop, .category-item .fa-shoe-prints, .category-item .fa-clock, .category-item .fa-gem, .category-item .fa-spa, .category-item .fa-baby, .category-item .fa-football-ball, .category-item .fa-home, .category-item .fa-th-large');
+    
+    categoryIcons.forEach(icon => {
+        icon.parentElement.addEventListener('mouseover', function() {
+            this.style.transform = 'rotateX(15deg) rotateY(15deg) scale(1.2)';
+        });
+        
+        icon.parentElement.addEventListener('mouseout', function() {
+            this.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+    });
+
+    // Dynamic slide counter update
+    const totalSlides = document.querySelectorAll('.product-hero-swiper .swiper-slide').length;
+    document.querySelector('.product-slide-total').textContent = totalSlides;
+
+    // Add hover effects to buttons
+    const buttons = document.querySelectorAll('a[href*="product-detail"], a[href*="add-to-cart"], a[href*="assistant"]');
+    
+    buttons.forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            if (window.innerWidth > 768) {
+                this.style.transform = 'scale(1.1) translateZ(10px)';
+            }
+        });
+        
+        btn.addEventListener('mouseleave', function() {
+            if (window.innerWidth > 768) {
+                this.style.transform = 'scale(1) translateZ(0px)';
+            }
+        });
+    });
+
+    // Smooth color transition on category hover
+    const categoryItems = document.querySelectorAll('.category-item');
+    
+    categoryItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.background = 'linear-gradient(135deg, rgba(232, 213, 196, 0.3), rgba(200, 162, 122, 0.2))';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.background = 'rgba(200, 162, 122, 0.08)';
+        });
+    });
+});
+
+// Resize handler for responsive 3D effects
+window.addEventListener('resize', function() {
+    if (window.innerWidth <= 768) {
+        // Disable 3D tilt on mobile
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.style.transform = 'none';
+        });
+    }
+});
+</script>
+
+<!-- Featured Categories Section -->
+<section id="featured" class="max-w-7xl mx-auto px-4 md:px-8 py-20">
+    <div class="text-center mb-16 section-header opacity-0">
+        <h2 class="text-4xl md:text-5xl font-light text-text-dark mb-4">Shop by Collection</h2>
+        <p class="text-text-dark/60 text-lg font-light">Explore our thoughtfully curated categories</p>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+        {% for cat in main_categories|slice:":6" %}
+        <a href="{% url 'category' cat.name %}" class="category-item group flex flex-col items-center justify-center p-6 rounded-2xl transition-all duration-500 opacity-0" style="animation: slideInUp 0.6s ease-out {% cycle '0.1s' '0.25s' '0.4s' '0.55s' '0.7s' '0.85s' %} forwards; background-color: rgba(200, 162, 122, 0.08); border: 1px solid rgba(200, 162, 122, 0.15);">
+            <!-- 3D Icon Container -->
+            <div class="w-14 h-14 rounded-full flex items-center justify-center text-primary text-xl mb-3 group-hover:scale-110 transition-all duration-300" 
+                 style="background-color: #E8D5C4; transform-style: preserve-3d; will-change: transform;">
+                {% if 'cloth' in cat.name|lower or 'fashion' in cat.name|lower %}
+                    <i class="fas fa-tshirt transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'electro' in cat.name|lower %}
+                    <i class="fas fa-laptop transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'shoe' in cat.name|lower %}
+                    <i class="fas fa-shoe-prints transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'watch' in cat.name|lower %}
+                    <i class="fas fa-clock transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'jewel' in cat.name|lower %}
+                    <i class="fas fa-gem transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'beauty' in cat.name|lower or 'health' in cat.name|lower %}
+                    <i class="fas fa-spa transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'kid' in cat.name|lower or 'bab' in cat.name|lower %}
+                    <i class="fas fa-baby transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'sport' in cat.name|lower %}
+                    <i class="fas fa-football-ball transition-all duration-300" style="display: inline-block;"></i>
+                {% elif 'home' in cat.name|lower or 'garden' in cat.name|lower %}
+                    <i class="fas fa-home transition-all duration-300" style="display: inline-block;"></i>
+                {% else %}
+                    <i class="fas fa-th-large transition-all duration-300" style="display: inline-block;"></i>
+                {% endif %}
+            </div>
+            <span class="text-sm font-medium text-text-dark/80 text-center group-hover:text-primary transition-colors">{{ cat.name }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Featured Products Carousel -->
+<section class="max-w-7xl mx-auto px-4 md:px-8 py-20" style="perspective: 1200px;">
+    <div class="text-center mb-16 section-header opacity-0">
+        <h2 class="text-4xl md:text-5xl font-light text-text-dark mb-4">New Arrivals</h2>
+        <p class="text-text-dark/60 text-lg font-light">Discover the latest additions to our collection</p>
+    </div>
+
+    <!-- Swiper Carousel with 3D perspective -->
+    <div class="swiper-container relative" style="perspective: 1000px;">
+        <div class="swiper-wrapper pb-4">
+            {% for product in new_products %}
+            <div class="swiper-slide flex items-stretch">
+                <!-- Product Card with 3D Effects -->
+                <div class="product-card group w-full rounded-2xl overflow-hidden transition-all duration-500 hover:shadow-xl flex flex-col h-full opacity-0" style="background-color: #FDFBF9; border: 1px solid rgba(200, 162, 122, 0.1); transform-style: preserve-3d;">
+                    <!-- Image Container with 3D Depth -->
+                    <div class="relative h-64 overflow-hidden bg-accent/30 flex items-center justify-center flex-shrink-0 group" style="perspective: 1000px; transform-style: preserve-3d;">
+                        <!-- 3D Light effect -->
+                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                             style="background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 70%); mix-blend-mode: overlay;"></div>
+                        
+                        <img 
+                            src="{{ product.product_image.url }}" 
+                            alt="{{ product.title }}" 
+                            class="max-h-64 max-w-full object-contain object-center group-hover:scale-125 group-hover:rotate-3 transition-all duration-700"
+                            style="will-change: transform; transform: translateZ(0);"
+                        >
+                        <!-- Overlay on Hover with 3D effect -->
+                        <div class="absolute inset-0 bg-text-dark/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                             style="backdrop-filter: blur(4px); pointer-events: none;">
+                            <a href="{% url 'product-detail' pk=product.id %}" class="px-6 py-2 bg-white text-text-dark rounded-full font-medium text-sm shadow-md hover:shadow-lg opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
+                               style="transform-style: preserve-3d;">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Product Info with smooth transitions -->
+                    <div class="p-5 flex flex-col flex-grow justify-between">
+                        <div>
+                            <p class="text-xs font-medium text-primary uppercase tracking-wider mb-3 transition-all duration-300">{{ product.category.name }}</p>
+                            <h3 class="text-lg font-medium text-text-dark line-clamp-2 mb-2 group-hover:text-primary transition-colors duration-300">
+                                {{ product.title }}
+                            </h3>
+                        </div>
+
+                        <!-- Price & Action with 3D buttons -->
+                        <div class="flex items-center justify-between pt-4 border-t border-accent/40">
+                            <div class="flex flex-col">
+                                <span class="text-xl font-light text-text-dark transition-all duration-300">₹{{ product.discounted_price }}</span>
+                                {% if product.selling_price != product.discounted_price %}
+                                <span class="text-xs text-primary font-medium transition-all duration-300">Save ₹{{ product.selling_price|add:"-"|add:product.discounted_price }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'add-to-cart' %}?prod_id={{ product.id }}" class="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-125 text-white relative overflow-hidden group/btn" style="background-color: #C8A27A; transform-style: preserve-3d; will-change: transform;">
+                                <!-- 3D Button shine effect -->
+                                <div class="absolute inset-0 opacity-0 group-hover/btn:opacity-30 transition-opacity duration-300"
+                                     style="background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, transparent 100%); pointer-events: none;"></div>
+                                <i class="fas fa-plus text-sm relative z-10"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination & Navigation -->
+        <div class="swiper-pagination mt-8"></div>
+        <button class="swiper-button-prev absolute left-0 top-1/3 z-20 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 text-primary hidden md:flex hover:shadow-lg" style="background-color: rgba(200, 162, 122, 0.15); transform-style: preserve-3d; will-change: transform;">
+            <i class="fas fa-chevron-left text-sm"></i>
+        </button>
+        <button class="swiper-button-next absolute right-0 top-1/3 z-20 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 text-primary hidden md:flex hover:shadow-lg" style="background-color: rgba(200, 162, 122, 0.15); transform-style: preserve-3d; will-change: transform;">
+            <i class="fas fa-chevron-right text-sm"></i>
+        </button>
+    </div>
+</section>
+
+<!-- AI Shopping Assistant Section with 3D Effects -->
+<section class="max-w-7xl mx-auto px-4 md:px-8 py-20" style="perspective: 1200px;">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <!-- Left: Content with 3D perspective -->
+        <div class="opacity-0 animate-fade-in" style="animation: fadeInLeft 0.8s ease-out 0.2s forwards; perspective: 1000px;">
+            <h2 class="text-4xl md:text-5xl font-light text-text-dark mb-6 transition-transform duration-300">Shop Smarter with AI</h2>
+            <p class="text-lg text-text-dark/70 mb-6 font-light leading-relaxed transition-transform duration-300">
+                Meet <span class="font-medium text-primary">Genie</span>, your personal shopping assistant. Ask anything about our products, get personalized recommendations, and discover exactly what you're looking for in seconds.
+            </p>
+            
+            <!-- Features List with 3D Cards -->
+            <div class="space-y-4 mb-8">
+                <div class="flex items-start gap-4 group p-3 rounded-lg transition-all duration-300 hover:bg-accent/10" style="perspective: 800px; transform-style: preserve-3d;">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 transition-all group-hover:scale-110 group-hover:rotate-12" style="background-color: rgba(200, 162, 122, 0.2); color: #C8A27A; will-change: transform;">
+                        <i class="fas fa-check text-sm"></i>
+                    </div>
+                    <div class="group-hover:translate-x-2 transition-transform duration-300">
+                        <h3 class="font-medium text-text-dark mb-1">Smart Search</h3>
+                        <p class="text-sm text-text-dark/70 font-light">Find products by description, mood, or style</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 group p-3 rounded-lg transition-all duration-300 hover:bg-accent/10" style="perspective: 800px; transform-style: preserve-3d;">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 transition-all group-hover:scale-110 group-hover:rotate-12" style="background-color: rgba(200, 162, 122, 0.2); color: #C8A27A; will-change: transform;">
+                        <i class="fas fa-check text-sm"></i>
+                    </div>
+                    <div class="group-hover:translate-x-2 transition-transform duration-300">
+                        <h3 class="font-medium text-text-dark mb-1">Personalized Tips</h3>
+                        <p class="text-sm text-text-dark/70 font-light">Get style recommendations tailored just for you</p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-4 group p-3 rounded-lg transition-all duration-300 hover:bg-accent/10" style="perspective: 800px; transform-style: preserve-3d;">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mt-1 transition-all group-hover:scale-110 group-hover:rotate-12" style="background-color: rgba(200, 162, 122, 0.2); color: #C8A27A; will-change: transform;">
+                        <i class="fas fa-check text-sm"></i>
+                    </div>
+                    <div class="group-hover:translate-x-2 transition-transform duration-300">
+                        <h3 class="font-medium text-text-dark mb-1">Instant Answers</h3>
+                        <p class="text-sm text-text-dark/70 font-light">Get help anytime, 24/7 without waiting</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Button with 3D Effect -->
+            <a href="{% url 'assistant' %}" class="inline-flex items-center gap-2 px-8 py-4 rounded-full font-medium text-white shadow-md hover:shadow-lg hover:scale-110 hover:-translate-y-1 transition-all duration-300 group" style="background-color: #C8A27A; transform-style: preserve-3d; will-change: transform;">
+                Chat with Genie
+                <i class="fas fa-sparkles group-hover:animate-spin"></i>
+            </a>
+        </div>
+
+        <!-- Right: Visual with 3D Depth -->
+        <div class="opacity-0 animate-fade-in" style="animation: fadeInRight 0.8s ease-out 0.4s forwards; perspective: 1200px;">
+            <div class="relative" style="transform-style: preserve-3d;">
+                <!-- Gradient Background with Animation -->
+                <div class="absolute inset-0 rounded-3xl blur-3xl opacity-20 -z-10 floating-element" style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);"></div>
+                
+                <!-- Chat Preview Card with 3D Layers -->
+                <div class="rounded-3xl overflow-hidden shadow-2xl group/card transition-all duration-500 hover:shadow-3xl hover:scale-105" style="background: white; border: 1px solid rgba(200, 162, 122, 0.15); transform-style: preserve-3d; transform: translateZ(0);">
+                    <!-- Header with 3D gradient -->
+                    <div class="p-4 md:p-6" style="background: linear-gradient(135deg, #C8A27A, #E8D5C4); transform-style: preserve-3d;" >
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 group-hover/card:scale-110 transition-transform duration-300" style="will-change: transform;">
+                                <span class="text-lg animate-bounce">✨</span>
+                            </div>
+                            <div class="text-white">
+                                <p class="font-semibold text-sm">Genie AI</p>
+                                <p class="text-xs text-white/80">Online</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messages with 3D perspective -->
+                    <div class="p-4 md:p-6 space-y-4 bg-white" style="background: #FDFBF9; perspective: 1000px;">
+                        <!-- Bot Message with 3D appearance -->
+                        <div class="flex items-start gap-2 animate-slide-in-left">
+                            <span class="text-lg mt-1 animate-pulse">✨</span>
+                            <div class="px-4 py-2 rounded-3xl rounded-tl-none text-sm" style="background: rgba(232, 213, 196, 0.6); box-shadow: 0 4px 12px rgba(200, 162, 122, 0.15); transform: translateZ(5px);">
+                                Hello! What can I help you find?
+                            </div>
+                        </div>
+
+                        <!-- User Message -->
+                        <div class="flex justify-end">
+                            <div class="px-4 py-2 rounded-3xl rounded-tr-none text-sm text-white" style="background: #C8A27A; box-shadow: 0 4px 12px rgba(200, 162, 122, 0.25); transform: translateZ(8px);">
+                                Show me trendy jackets
+                            </div>
+                        </div>
+
+                        <!-- Bot Message -->
+                        <div class="flex items-start gap-2 animate-slide-in-left" style="animation-delay: 0.2s;">
+                            <span class="text-lg mt-1 animate-pulse" style="animation-delay: 0.2s;">✨</span>
+                            <div class="px-4 py-2 rounded-3xl rounded-tl-none text-sm text-text-dark" style="background: rgba(232, 213, 196, 0.8); box-shadow: 0 4px 12px rgba(200, 162, 122, 0.15); transform: translateZ(5px);">
+                                Perfect! Found 47 stylish jackets for you
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+                            <span class="text-lg mt-1">✨</span>
+                            <div class="px-4 py-2 rounded-3xl rounded-tl-none text-sm" style="background: rgba(232, 213, 196, 0.6);">
+                                I found 24 stunning jackets! ✨
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input -->
+                    <div class="p-4 md:p-6 border-t border-accent/20" style="background: #FDFBF9;">
+                        <div class="flex gap-2">
+                            <input type="text" placeholder="Ask me anything..." disabled class="flex-1 px-3 py-2 rounded-full text-sm" style="background: white; border: 1px solid rgba(200, 162, 122, 0.2); cursor: not-allowed;" />
+                            <button disabled class="px-4 py-2 rounded-full text-white text-sm" style="background: rgba(200, 162, 122, 0.5); cursor: not-allowed;">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="max-w-7xl mx-auto px-4 md:px-8 py-20 text-center">
+    <div class="rounded-3xl p-12 md:p-20 text-center opacity-0 translate-y-8 cta-section" style="background: linear-gradient(135deg, rgba(200, 162, 122, 0.1), rgba(232, 213, 196, 0.15));">
+        <h2 class="text-4xl md:text-5xl font-light text-text-dark mb-6">Stay Inspired</h2>
+        <p class="text-lg text-text-dark/70 max-w-2xl mx-auto mb-8 font-light">
+            Get personalized recommendations and exclusive updates directly to your inbox.
+        </p>
+        <div class="flex gap-3 max-w-md mx-auto">
+            <input 
+                type="email" 
+                placeholder="your@email.com" 
+                class="flex-1 px-4 py-3 rounded-full focus:outline-none" 
+                style="background-color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(200, 162, 122, 0.2);"
+            >
+            <button class="px-6 py-3 rounded-full text-white font-medium hover:scale-105 transition-transform" style="background-color: #C8A27A;">
+                Subscribe
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Swiper JS Configuration -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Swiper
+        const swiper = new Swiper('.swiper-container', {
+            slidesPerView: 1,
+            spaceBetween: 20,
+            loop: true,
+            autoplay: {
+                delay: 4000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+                bulletClass: 'swiper-pagination-bullet',
+                bulletActiveClass: 'swiper-pagination-bullet-active',
+                dynamicBullets: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            breakpoints: {
+                640: {
+                    slidesPerView: 2,
+                    spaceBetween: 15,
+                },
+                1024: {
+                    slidesPerView: 3,
+                    spaceBetween: 20,
+                },
+                1280: {
+                    slidesPerView: 4,
+                    spaceBetween: 24,
+                },
+            },
+        });
+
+        // GSAP Animations
+        gsap.to(".hero-content", {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power4.out",
+            delay: 0.2
+        });
+
+        gsap.utils.toArray('.section-header').forEach(header => {
+            gsap.to(header, {
+                scrollTrigger: {
+                    trigger: header,
+                    start: "top 85%",
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power2.out"
+            });
+        });
+
+        gsap.utils.toArray('.category-item').forEach(item => {
+            gsap.to(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: "top 85%",
+                },
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                stagger: 0.08,
+                ease: "back.out(1.2)"
+            });
+        });
+
+        gsap.to(".product-card", {
+            scrollTrigger: {
+                trigger: ".swiper-container",
+                start: "top 80%",
+            },
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power3.out"
+        });
+
+        gsap.to(".cta-section", {
+            scrollTrigger: {
+                trigger: ".cta-section",
+                start: "top 85%",
+            },
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power2.out"
+        });
+    });
+</script>
+
+<!-- Custom Swiper Styling -->
+<style>
+    /* Product Carousel Pagination */
+    .swiper-pagination-bullet {
+        background-color: rgba(200, 162, 122, 0.3) !important;
+        opacity: 1 !important;
+    }
+    
+    .swiper-pagination-bullet-active {
+        background-color: #C8A27A !important;
+    }
+
+    /* Hero Section Image Hover */
+    .hero-image {
+        transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hero-image:hover {
+        transform: scale(1.05) translateY(-8px);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeInRight {
+        from {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
 </style>
 {% endblock %}
 

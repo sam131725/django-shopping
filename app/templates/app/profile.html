@@ -1,82 +1,114 @@
 {% extends 'app/base.html' %}
 {% load static %}
 
-{% block title %}Customer Registration{% endblock %}
+{% block title %}Profile{% endblock %}
 
 {% block main-content %}
-<div class="container my-5">
-    <div class="row">
-        <!-- Welcome Section -->
-        <h3>Welcome <span class="text-capitalize">{{ request.user }}</span></h3>
-    </div>
-
-    <div class="row mt-4">
-        <!-- Left Side Buttons -->
-        <div class="col-md-3">
-            <ul class="list-group">
-                <li class="list-group-item">
-                    <a href="{% url 'profile' %}" class="btn btn-primary btn-block w-100">Profile</a>
-                </li>
-                <li class="list-group-item">
-                    <a href="{% url 'address' %}" class="btn btn-secondary btn-block w-100">Address</a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Right Side Form -->
-        <div class="col-md-9">
-            <form method="post" id="customerForm" class="p-4 border rounded shadow-custom">
-                {% csrf_token %}
-                
-                {% for fm in form %}
-                    <div class="form-group row mb-3">
-                        <label for="{{ fm.id_for_label }}" class="col-sm-3 col-form-label">{{ fm.label }}</label>
-                        <div class="col-sm-9">
-                            {{ fm }} 
-                            <small class="text-danger">{{ fm.errors|striptags }}</small>
-                        </div>
-                    </div>
-                {% endfor %}
-                
-                <div class="col-12 mt-3">
-                    <button type="submit" class="btn btn-success w-100">Save</button>
-                </div>
-
-                {% if form.non_field_errors %}
-                    <div class="alert alert-danger mt-3">
-                        <ul>
-                            {% for error in form.non_field_errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endif %}
-                
-                {% if messages %}
-                    {% for msg in messages %}
-                        <div class="alert alert-{{ msg.tags }} mt-3" role="alert">
-                            {{ msg }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </form>
-        </div>
+<div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 flex items-center gap-3">
+            <i class="fas fa-user-circle text-primary"></i>
+            Welcome, <span class="text-primary">{{ request.user }}</span>
+        </h1>
     </div>
 </div>
 
-<script>
-    // Add hover effect to the form using JavaScript
-    const form = document.getElementById('customerForm');
+<div class="max-w-7xl mx-auto px-4 md:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <!-- Sidebar Navigation -->
+        <aside class="md:col-span-1">
+            <nav class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden sticky top-24">
+                <div class="divide-y divide-gray-200">
+                    <a href="{% url 'profile' %}" class="block px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary font-medium transition flex items-center gap-3">
+                        <i class="fas fa-user w-5 h-5 text-center"></i>
+                        Profile
+                    </a>
+                    <a href="{% url 'address' %}" class="block px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary font-medium transition flex items-center gap-3">
+                        <i class="fas fa-map-marker-alt w-5 h-5 text-center"></i>
+                        Address
+                    </a>
+                    <a href="{% url 'passwordchange' %}" class="block px-6 py-4 text-gray-700 hover:bg-primary/5 hover:text-primary font-medium transition flex items-center gap-3">
+                        <i class="fas fa-lock w-5 h-5 text-center"></i>
+                        Change Password
+                    </a>
+                </div>
+            </nav>
+        </aside>
 
-    form.addEventListener('mouseenter', function() {
-        form.style.boxShadow = '0 10px 20px rgba(255, 105, 180, 0.8)'; // Larger shadow on hover
-    });
+        <!-- Main Content -->
+        <main class="md:col-span-3">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-8">Update Profile</h2>
 
-    form.addEventListener('mouseleave', function() {
-        form.style.boxShadow = '0 4px 8px rgba(255, 182, 193, 0.5)'; // Smaller shadow when mouse leaves
-    });
-</script>
+                {% if messages %}
+                <div class="mb-6 space-y-3">
+                    {% for msg in messages %}
+                    <div class="p-4 rounded-lg {% if msg.tags %}bg-{{ msg.tags }}-50 text-{{ msg.tags }}-800 border border-{{ msg.tags }}-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %} flex items-start gap-3">
+                        <i class="fas fa-check-circle mt-0.5 flex-shrink-0"></i>
+                        <span>{{ msg }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
+                <form method="post" id="customerForm" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    {% for fm in form %}
+                    <div>
+                        <label for="{{ fm.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ fm.label }}
+                        </label>
+                        {{ fm }}
+                        {% if fm.errors %}
+                        <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                            <i class="fas fa-info-circle text-xs"></i>
+                            {{ fm.errors|striptags }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    {% if form.non_field_errors %}
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <h3 class="font-semibold text-red-900 mb-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Error
+                        </h3>
+                        <ul class="space-y-1 text-red-700 text-sm">
+                            {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="flex gap-4 pt-6 border-t border-gray-200">
+                        <button type="submit" class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                        <a href="{% url 'home' %}" class="bg-gray-100 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors flex items-center gap-2">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+</div>
+
+<style>
+    /* Style form inputs */
+    input, textarea {
+        @apply w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:border-transparent focus:ring-2 focus:ring-primary focus:bg-white transition-all text-gray-900 placeholder-gray-400;
+    }
+    
+    select {
+        @apply w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:border-transparent focus:ring-2 focus:ring-primary focus:bg-white transition-all text-gray-900;
+    }
+</style>
 {% endblock %}
 
 

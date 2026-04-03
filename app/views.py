@@ -337,7 +337,7 @@ def search(request):
     query = request.GET.get('query', '')
     results = []
     if query:
-        results = Product.objects.filter(Q(title__icontains=query) | Q(category__icontains=query))
+        results = Product.objects.filter(Q(title__icontains=query) | Q(category__name__icontains=query))
     return render(request, 'app/search_results.html', {'query': query, 'results': results})
 
 def assistant(request):

@@ -2,42 +2,119 @@
 {% extends 'app/base.html' %}
 {% load static %}
 
-{% block title %}Customer Registration{% endblock %}
+{% block title %}Login{% endblock %}
 
 {% block main-content %}
- <div class="container">
-    <div class="row my-3">
-    <div class ="col-sm-6 offset-sm-3">
-        <h3>Login</h3>
-        <form method="post" action="" novalidate class ="shadow p-5">
-            {% csrf_token %}
-            {% for fm in form %}
-               <div class="mb-3">
-                  {{ fm.label_tag }}
-                  {{ fm }}
-                  <small class="text-danger">{{ fm.errors|striptags }}</small>
-               </div>
-               {% endfor %}
-               
-                <small><a href="{% url 'password_reset' %}">Forget Password?</a></small> 
-             <br>
-             <button type="submit" class="btn btn-primary w-100">Login</button>
-             <div class="mt-3 text-center">
-                <small>New User? <a href="{%url 'CustomerRegistration' %}"></small> 
-                Create an Account </a>
-             </div>
-             {% if form.non_field_errors %}
-               <div class="alert alert-danger mt-3">
-                  <ul>
-                     {% for error in form.non_field_errors %}
-                     <li>{{ error }}</li>
-                     {% endfor %}
-                  </ul>
-               </div>
-               {% endif %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+        <!-- Card Container -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="px-8 pt-8 pb-6 border-b border-gray-100">
+                <h2 class="text-3xl font-bold text-gray-900 text-center mb-2">Welcome Back</h2>
+                <p class="text-center text-gray-500 text-sm">Sign in to your LezzShop account</p>
+            </div>
 
-        </form>
+            <!-- Form Content -->
+            <div class="px-8 py-8">
+                {% if form.non_field_errors %}
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-exclamation-circle text-red-600 mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <h3 class="font-semibold text-red-900 text-sm mb-1">Login Failed</h3>
+                            <ul class="text-red-700 text-sm space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="post" action="" novalidate class="space-y-5">
+                    {% csrf_token %}
+                    
+                    {% for fm in form %}
+                    <div>
+                        <label for="{{ fm.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ fm.label }}
+                        </label>
+                        {% if fm.field.widget.input_type == 'password' %}
+                            <input 
+                                type="password" 
+                                name="{{ fm.name }}" 
+                                id="{{ fm.id_for_label }}"
+                                placeholder="Enter your password"
+                                class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:border-transparent focus:ring-2 focus:ring-primary focus:bg-white transition-all text-gray-900 placeholder-gray-400"
+                                {{ fm.field.widget.attrs|safe }}
+                            />
+                        {% else %}
+                            <input 
+                                type="email" 
+                                name="{{ fm.name }}" 
+                                id="{{ fm.id_for_label }}"
+                                placeholder="Enter your email address"
+                                class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-300 focus:border-transparent focus:ring-2 focus:ring-primary focus:bg-white transition-all text-gray-900 placeholder-gray-400"
+                                {{ fm.field.widget.attrs|safe }}
+                            />
+                        {% endif %}
+                        {% if fm.errors %}
+                        <p class="mt-2 text-sm text-red-600 flex items-center gap-1">
+                            <i class="fas fa-info-circle text-xs"></i>
+                            {{ fm.errors|striptags }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <!-- Forgot Password Link -->
+                    <div class="flex justify-end">
+                        <a href="{% url 'password_reset' %}" class="text-sm font-medium text-primary hover:text-indigo-700 transition">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-300 shadow-sm hover:shadow-md">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Sign In
+                    </button>
+                </form>
+
+                <!-- Divider -->
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Or</span>
+                    </div>
+                </div>
+
+                <!-- Sign Up Link -->
+                <div class="text-center">
+                    <p class="text-gray-600 text-sm">
+                        Don't have an account? 
+                        <a href="{% url 'CustomerRegistration' %}" class="font-semibold text-primary hover:text-indigo-700 transition">
+                            Create account
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Text -->
+        <p class="mt-8 text-center text-gray-500 text-xs">
+            By signing in, you agree to our Terms of Service and Privacy Policy
+        </p>
     </div>
-    </div>
- </div>
+</div>
+
+<style>
+    /* Smooth focus transitions */
+    input:focus {
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+</style>
 {% endblock %}

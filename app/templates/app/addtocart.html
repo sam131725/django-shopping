@@ -1,68 +1,116 @@
 {% extends 'app/base.html' %}
 {% load static %}
 
-{% block title %}About Us{% endblock title %}
+{% block title %}Shopping Cart{% endblock title %}
 
 {% block main-content %}
-    
-        <div class="container my-5">
-            {% if cart %}
-            <div class="row my-3">
-                <h1>Shopping Cart</h1>
-                <div class = "col-sm-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h3>CART</h3>
-                        {% for item in cart %}
-                            <div class="row">
-                                <div class="col-sm-3 text-center align-self-center">
-                                    <img src="{{ item.product.product_image.url }}" alt="" class="img-fluid img-thumbnail shadow-sm" height="150" width="150">
-                                </div>
-                                <div class="col-sm-9">
-                                    <h5>{{ item.product.title }}</h5>
-                                    <p class="mb-2 text-muted small">{{ item.product.description }}</p>
-                                    <div class="my-3">
-                                        <label for="quantity">Quantity</label>
-                                        <a class="minus-cart btn" pid="{{ item.product.id }}"> <i class="fas fa-minus-square fa-lg"></i></a>
-                                        <span id="quantity">{{ item.quantity }}</span>
-                                        <a class="plus-cart btn" pid="{{ item.product.id }}"><i class="fas fa-plus-square fa-lg"></i></a>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <a href="#" class="remove-cart btn btn-sm btn-secondary mr-3" pid="{{ item.product.id }}">Remove Item</a>
-                                        <p class="mb-0"><span><strong>RS. {{ item.product.discounted_price }}</strong></span></p>
-                                    </div>
-                                    
-                                </div>
+<div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <h1 class="text-4xl font-bold text-gray-900 flex items-center gap-3">
+            <i class="fas fa-shopping-cart text-primary"></i>
+            Shopping Cart
+        </h1>
+    </div>
+</div>
 
+<div class="max-w-7xl mx-auto px-4 md:px-8 py-12">
+    {% if cart %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Cart Items -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="divide-y divide-gray-200">
+                    {% for item in cart %}
+                    <div class="p-6 hover:bg-gray-50 transition">
+                        <div class="flex gap-6">
+                            <!-- Product Image -->
+                            <div class="flex-shrink-0">
+                                <img 
+                                    src="{{ item.product.product_image.url }}" 
+                                    alt="{{ item.product.title }}" 
+                                    class="w-24 h-24 object-contain rounded-lg bg-gray-100"
+                                >
                             </div>
-                    </div>
-                    <hr class="text-muted">
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h3>The Total Amount</h3>
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex">Amount <span id="amount">Rs. {{ amount }}</span></li>
-                            <li> Shipping <span>Rs 40.0</span></li>
-                            <li>
-                                <div>
-                                    <strong>Total</strong><small>(including GST)</small>
+
+                            <!-- Product Details -->
+                            <div class="flex-grow">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ item.product.title }}</h3>
+                                <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ item.product.description }}</p>
+                                
+                                <!-- Quantity Controls -->
+                                <div class="flex items-center gap-3 bg-gray-100 rounded-lg w-fit px-2 py-1">
+                                    <button class="minus-cart btn text-gray-600 hover:text-primary transition" pid="{{ item.product.id }}">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span id="quantity" class="font-semibold text-gray-900 min-w-[2rem] text-center">{{ item.quantity }}</span>
+                                    <button class="plus-cart btn text-gray-600 hover:text-primary transition" pid="{{ item.product.id }}">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
                                 </div>
-                                <span id="totalamount"><strong>Rs {{ totalamount }}</strong></span>
-                            </li>
-                        </ul>
-                        <div class="d-grid">
-                            <a href="{% url 'checkout' %}" class="btn btn-primary">Place Order</a>
+                            </div>
+
+                            <!-- Price & Remove -->
+                            <div class="flex flex-col items-end justify-between">
+                                <button class="remove-cart text-red-600 hover:text-red-700 transition font-medium text-sm" pid="{{ item.product.id }}">
+                                    <i class="fas fa-trash-alt mr-1"></i>Remove
+                                </button>
+                                <div class="text-2xl font-bold text-gray-900">
+                                    ₹{{ item.product.discounted_price }}
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 h-fit sticky top-24">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Order Summary</h3>
+                
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Subtotal</span>
+                        <span id="amount" class="font-semibold">₹{{ amount }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Shipping</span>
+                        <span class="font-semibold">₹40</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>GST (estimated)</span>
+                        <span class="font-semibold">Included</span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-4 flex justify-between">
+                        <span class="text-lg font-bold text-gray-900">Total</span>
+                        <span id="totalamount" class="text-xl font-bold text-primary">₹{{ totalamount }}</span>
+                    </div>
+                </div>
+
+                <a href="{% url 'checkout' %}" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-lock text-sm"></i>
+                    Proceed to Checkout
+                </a>
+
+                <a href="{% url 'home' %}" class="w-full mt-3 bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-center">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
     {% else %}
-        <h1>Cart Is Empty</h1>
+    <!-- Empty Cart State -->
+    <div class="text-center py-20">
+        <i class="fas fa-shopping-cart text-6xl text-gray-300 mb-6"></i>
+        <h2 class="text-3xl font-bold text-gray-900 mb-3">Your cart is empty</h2>
+        <p class="text-gray-600 mb-8 max-w-md mx-auto">Start adding your favorite products to your cart and shop with confidence!</p>
+        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors">
+            <i class="fas fa-home"></i>
+            Continue Shopping
+        </a>
+    </div>
     {% endif %}
+</div>
 {% endblock main-content %}
