@@ -30,7 +30,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-gel@ty0xfi^6_h*&8hn3@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Allow all Render domains and localhost
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
 
 # Application definition
@@ -61,8 +62,8 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,https://*.onrender.com').split(',')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,https://*.onrender.com').split(',')
 
 ROOT_URLCONF = 'ecommerce.urls'
 
@@ -189,6 +190,11 @@ if not DEBUG:
         'script-src': ("'self'", "'unsafe-inline'"),
         'style-src': ("'self'", "'unsafe-inline'"),
     }
+    
+    # Trust Render's proxy headers for HTTPS
+    # Render uses a reverse proxy, so we need to trust the X-Forwarded-Proto header
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    TRUST_X_FORWARDED_FOR = True
     
     # WhiteNoise compression
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
