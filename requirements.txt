@@ -5,5 +5,9 @@ python-dotenv
 google-generativeai
 rapidfuzz
 django-celery-results
-django-celery-beat 
+django-celery-beat
 gunicorn
+whitenoise
+psycopg2-binary
+dj-database-url
+stripe
