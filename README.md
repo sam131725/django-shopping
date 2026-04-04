@@ -6,6 +6,8 @@
 ![Django](https://img.shields.io/badge/Django-5.2+-green?style=for-the-badge&logo=django)
 ![AI Powered](https://img.shields.io/badge/AI-Gemini%20LLM-blue?style=for-the-badge&logo=google)
 ![Python](https://img.shields.io/badge/Python-3.8+-yellow?style=for-the-badge&logo=python)
+![Render](https://img.shields.io/badge/Render-Ready-00d4aa?style=for-the-badge&logo=render)
+![Stripe](https://img.shields.io/badge/Stripe-Integrated-635bff?style=for-the-badge&logo=stripe)
 
 **Shopping Made Easy with Genie!** 🧞🛍️✨
 
@@ -99,6 +101,10 @@ A modern, full-stack e-commerce platform featuring AI-powered product recommenda
 - **django-celery-results** - Task result backend
 - **django-celery-beat** - Periodic task scheduler
 - **gunicorn** - Production WSGI server
+- **whitenoise** - Static file serving for production
+- **psycopg2** - PostgreSQL database adapter
+- **dj-database-url** - Database URL parsing
+- **Stripe** - Payment processing integration
 
 ### Development Tools
 - **Git** - Version control
@@ -144,19 +150,29 @@ pip install -r requirements.txt
 
 #### 4. Configure Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root (see `.env.example` for all options):
 
 ```env
 # Django Settings
 SECRET_KEY=your_django_secret_key_here
 DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Gemini AI API
 GEMINI_API_KEY=your_gemini_api_key_here
 
 # Email Configuration (Gmail)
-EMAIL_HOST_USER=your_email@gmail.com
-EMAIL_HOST_PASSWORD=your_gmail_app_password
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_gmail_app_password
+
+# Stripe (Testing)
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# CORS and CSRF (for frontend)
+CORS_ALLOWED_ORIGINS=http://localhost:3000
+CSRF_TRUSTED_ORIGINS=http://localhost:3000
 
 # Database (optional for production)
 DATABASE_URL=postgresql://user:password@localhost/dbname
@@ -458,23 +474,56 @@ class PriceAlert(models.Model):
 
 ## 🚢 Deployment
 
+### 🎯 Deploying on Render (Recommended)
+
+This project is fully configured for production deployment on Render with PostgreSQL, static files, and Stripe.
+
+**Quick Start:**
+1. Read [DEPLOYMENT.md](DEPLOYMENT.md) for complete step-by-step instructions
+2. Connect your GitHub repository to Render
+3. Set environment variables in Render dashboard
+4. Deploy automatically on push
+
+**What's Included:**
+- ✅ `Procfile` - Render process definitions
+- ✅ `runtime.txt` - Python version specification  
+- ✅ Environment-based configuration in `settings.py`
+- ✅ WhiteNoise middleware for static file serving
+- ✅ Automatic database migrations on deploy
+- ✅ Production security settings (SSL, HSTS, CSP)
+- ✅ PostgreSQL database support
+- ✅ Stripe webhook configuration
+
 ### Production Checklist
 
-- [ ] Set `DEBUG=False` in settings
-- [ ] Configure production database (PostgreSQL)
-- [ ] Set up Redis for Celery
-- [ ] Configure static files serving
-- [ ] Set up SSL certificate
-- [ ] Configure domain name
-- [ ] Set up email service
-- [ ] Enable HTTPS
-- [ ] Set strong SECRET_KEY
-- [ ] Configure allowed hosts
+- [ ] Generate secure SECRET_KEY (see DEPLOYMENT.md)
+- [ ] Set `DEBUG=False` environment variable
+- [ ] Configure PostgreSQL database URL
+- [ ] Set up Stripe live keys (if payments needed)
+- [ ] Configure ALLOWED_HOSTS with your domain
+- [ ] Set CORS_ALLOWED_ORIGINS for frontend
+- [ ] Configure email credentials
+- [ ] Set up Stripe webhooks
+- [ ] Collect static files: `python manage.py collectstatic`
+- [ ] Test locally with `DEBUG=False` before deploying
+
+### Local Production Testing
+
+```bash
+# Test with production settings locally
+DEBUG=False python manage.py runserver
+
+# Collect static files
+python manage.py collectstatic --noinput
+
+# Run with gunicorn (like Render does)
+gunicorn ecommerce.wsgi:application --bind 0.0.0.0:8000
+```
 
 ### Deployment with Gunicorn
 
 ```bash
-# Install gunicorn
+# Install gunicorn (included in requirements.txt)
 pip install gunicorn
 
 # Run server
@@ -484,11 +533,12 @@ gunicorn ecommerce.wsgi:application --bind 0.0.0.0:8000
 ### Using Docker (Optional)
 
 ```dockerfile
-FROM python:3.9
+FROM python:3.11
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
+RUN python manage.py collectstatic --noinput
 CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000"]
 ```
 
@@ -565,13 +615,34 @@ For issues, questions, or suggestions:
 
 ---
 
+## � Payment Processing with Stripe
+
+Stripe integration is configured and ready for use:
+
+**Features:**
+- ✅ Secure payment processing
+- ✅ Webhook handling for payment confirmations
+- ✅ Test and live mode support
+- ✅ Environment-based key management
+
+**Setup:**
+1. Create Stripe account at [stripe.com](https://stripe.com)
+2. Get API keys from dashboard
+3. Add to environment variables:
+   - `STRIPE_PUBLIC_KEY` (test or live)
+   - `STRIPE_SECRET_KEY` (test or live)
+   - `STRIPE_WEBHOOK_SECRET` (webhook signing secret)
+4. Configure webhook endpoints in Stripe dashboard
+
+---
+
 ## 📈 Future Enhancements
 
 Planned features:
 - [ ] Product reviews and ratings
 - [ ] Wishlist functionality
-- [ ] Order tracking system
-- [ ] Payment gateway integration (Stripe/Razorpay)
+- [ ] Order tracking system  
+- [ ] Complete payment checkout flow
 - [ ] Social authentication (Google, Facebook)
 - [ ] Advanced analytics dashboard
 - [ ] Mobile app (React Native)
