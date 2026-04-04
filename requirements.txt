@@ -11,3 +11,6 @@ whitenoise
 psycopg2-binary
 dj-database-url
 stripe
+djangorestframework
+django-cors-headers
+redis
