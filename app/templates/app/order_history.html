@@ -1,0 +1,164 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Order History | Sabhachik{% endblock title %}
+
+{% block main-content %}
+<!-- Order History Section -->
+<section class="min-h-screen py-12 md:py-20 px-4 md:px-8" style="background-color: #F7F3EF;">
+    <div class="max-w-6xl mx-auto">
+        
+        <!-- Page Header -->
+        <div class="mb-12 md:mb-16">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-light text-text-dark mb-4">
+                My Orders
+            </h1>
+            <p class="text-lg text-text-dark/60 font-light">
+                View and manage all your orders in one place
+            </p>
+        </div>
+        
+        <!-- Orders Container -->
+        {% if page_obj %}
+            <div class="space-y-6">
+                {% for order in page_obj %}
+                    <!-- Order Card -->
+                    <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden"
+                         style="border-left: 4px solid {% if order.is_paid %}#10b981{% else %}#F59E0B{% endif %};">
+                        
+                        <div class="p-6 md:p-8">
+                            <!-- Order Header -->
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 pb-6 border-b border-accent/20">
+                                <div>
+                                    <h3 class="text-2xl font-semibold text-text-dark mb-2">
+                                        Order #{{ order.id }}
+                                    </h3>
+                                    <p class="text-text-dark/60">
+                                        Placed on {{ order.created_at|date:"M d, Y" }} at {{ order.created_at|time:"H:i" }}
+                                    </p>
+                                </div>
+                                
+                                <!-- Status Badge -->
+                                <div class="flex items-center gap-4">
+                                    {% if order.is_paid %}
+                                        <span class="px-4 py-2 rounded-full text-white text-sm font-semibold inline-block" style="background-color: #10b981;">
+                                            <i class="fas fa-check-circle mr-2"></i>Paid
+                                        </span>
+                                    {% else %}
+                                        <span class="px-4 py-2 rounded-full text-white text-sm font-semibold inline-block" style="background-color: #F59E0B;">
+                                            <i class="fas fa-clock mr-2"></i>Pending
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Order Items -->
+                            <div class="mb-6">
+                                <h4 class="font-semibold text-text-dark mb-4">Items Ordered:</h4>
+                                <div class="space-y-3">
+                                    {% for item in order.items.all %}
+                                        <div class="flex items-center justify-between p-4 rounded-lg" style="background-color: #FDFBF9;">
+                                            <div class="flex-grow">
+                                                <p class="font-medium text-text-dark">{{ item.product.title }}</p>
+                                                <p class="text-sm text-text-dark/60">Quantity: {{ item.quantity }}</p>
+                                            </div>
+                                            <p class="font-semibold text-primary">₹{{ item.price|floatformat:2 }}</p>
+                                        </div>
+                                    {% endfor %}
+                                    
+                                    <!-- Shipping -->
+                                    <div class="flex items-center justify-between p-4 rounded-lg" style="background-color: #FDFBF9;">
+                                        <p class="font-medium text-text-dark">Shipping</p>
+                                        <p class="font-semibold text-primary">₹40.00</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Order Summary -->
+                            <div class="bg-accent/20 rounded-xl p-6 mb-6 flex justify-between items-center">
+                                <div>
+                                    <p class="text-text-dark/70 text-sm mb-2">Total Amount</p>
+                                    <p class="text-3xl font-semibold text-primary">₹{{ order.total_amount }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-text-dark/70 text-sm">Payment Status</p>
+                                    <p class="text-lg font-semibold text-text-dark">
+                                        {{ order.get_payment_status_display|upper }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col md:flex-row gap-3">
+                                <a href="{% url 'order-detail' order.id %}" 
+                                   class="px-6 py-3 rounded-lg font-medium text-white transition-all duration-300 hover:scale-105 text-center"
+                                   style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                                    <i class="fas fa-eye mr-2"></i>View Details
+                                </a>
+                                {% if order.is_paid %}
+                                    <a href="{% url 'home' %}" 
+                                       class="px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 text-center"
+                                       style="color: #C8A27A; border: 2px solid #C8A27A; background-color: transparent;">
+                                        <i class="fas fa-plus-circle mr-2"></i>Order Similar Items
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'showcart' %}" 
+                                       class="px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 text-center"
+                                       style="color: #C8A27A; border: 2px solid #C8A27A; background-color: transparent;">
+                                        <i class="fas fa-redo mr-2"></i>Retry Payment
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav class="mt-12 flex justify-center items-center gap-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="px-4 py-2 rounded-lg text-text-dark hover:bg-accent/30 transition">
+                            <i class="fas fa-chevron-left"></i> First
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 rounded-lg text-text-dark hover:bg-accent/30 transition">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 rounded-lg text-text-dark hover:bg-accent/30 transition">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 rounded-lg text-text-dark hover:bg-accent/30 transition">
+                            Last <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+            
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-20">
+                <div class="mb-6">
+                    <i class="fas fa-shopping-bag text-6xl text-primary/30"></i>
+                </div>
+                <h3 class="text-2xl font-light text-text-dark mb-3">No Orders Yet</h3>
+                <p class="text-text-dark/60 font-light mb-8 max-w-md mx-auto">
+                    You haven't placed any orders yet. Start shopping and make your first purchase!
+                </p>
+                <a href="{% url 'home' %}" 
+                   class="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                   style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                    <i class="fas fa-shopping-bag mr-2"></i>
+                    Start Shopping
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock main-content %}

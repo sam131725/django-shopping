@@ -1,0 +1,124 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Payment Successful | Sabhachik{% endblock title %}
+
+{% block main-content %}
+<!-- Payment Success Section -->
+<section class="min-h-screen flex items-center justify-center px-4 md:px-8" style="background-color: #F7F3EF;">
+    <div class="max-w-2xl w-full">
+        <!-- Success Card -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center" style="border: 2px solid #C8A27A;">
+            
+            <!-- Success Icon -->
+            <div class="mb-8 flex justify-center">
+                <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center animate-bounce">
+                    <i class="fas fa-check text-4xl text-green-600"></i>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <h1 class="text-4xl md:text-5xl font-light text-text-dark mb-4">
+                Payment Successful! 🎉
+            </h1>
+            
+            <p class="text-xl text-text-dark/70 font-light mb-8">
+                Thank you for your purchase. Your order has been confirmed and payment is being processed.
+            </p>
+            
+            <!-- Order Summary -->
+            {% if order %}
+                <div class="bg-accent/20 rounded-xl p-6 mb-8 text-left" style="border: 1px solid #E8D5C4;">
+                    <h3 class="text-lg font-semibold text-text-dark mb-4">Order Details</h3>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-text-dark/70">Order ID:</span>
+                            <span class="font-semibold text-text-dark">#{{ order.id }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-text-dark/70">Order Date:</span>
+                            <span class="font-semibold text-text-dark">{{ order.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-text-dark/70">Total Amount:</span>
+                            <span class="font-semibold text-primary text-lg">₹{{ order.total_amount }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-text-dark/70">Payment Status:</span>
+                            <span class="px-4 py-2 rounded-full text-white text-sm font-semibold" style="background-color: #10b981;">
+                                ✓ Paid
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items Preview -->
+                    {% if order.items.all %}
+                        <div class="border-t border-accent/30 pt-4">
+                            <h4 class="font-semibold text-text-dark mb-3">Order Items:</h4>
+                            <div class="space-y-2">
+                                {% for item in order.items.all %}
+                                    <div class="flex justify-between items-center text-sm">
+                                        <span class="text-text-dark/70">{{ item.product.title }} × {{ item.quantity }}</span>
+                                        <span class="font-semibold text-text-dark">₹{{ item.price|floatformat:2 }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <!-- What's Next -->
+            <div class="bg-blue-50 rounded-xl p-6 mb-8 text-left" style="border-left: 4px solid #3B82F6;">
+                <h4 class="font-semibold text-text-dark mb-3 flex items-center gap-2">
+                    <i class="fas fa-info-circle text-blue-600"></i>
+                    What Happens Next?
+                </h4>
+                <ul class="space-y-2 text-text-dark/70 text-sm">
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-600 font-bold mt-0.5">1.</span>
+                        <span>Your payment has been verified and confirmed.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-600 font-bold mt-0.5">2.</span>
+                        <span>Your order will be packed and shipped within 24-48 hours.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-600 font-bold mt-0.5">3.</span>
+                        <span>You'll receive a tracking number via email.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-600 font-bold mt-0.5">4.</span>
+                        <span>Expected delivery: 3-5 business days.</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="space-y-3 md:space-y-0 md:space-x-4 md:flex md:justify-center">
+                <a href="{% url 'order-history' %}" 
+                   class="block md:inline-block px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                   style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                    <i class="fas fa-history mr-2"></i>
+                    View Order History
+                </a>
+                <a href="{% url 'home' %}" 
+                   class="block md:inline-block px-8 py-4 rounded-full font-semibold transition-all duration-300 hover:scale-105"
+                   style="color: #C8A27A; border: 2px solid #C8A27A; background-color: transparent;">
+                    <i class="fas fa-home mr-2"></i>
+                    Continue Shopping
+                </a>
+            </div>
+            
+            <!-- Contact Support -->
+            <div class="mt-8 pt-8 border-t border-accent/30 text-center">
+                <p class="text-text-dark/60 text-sm mb-2">Need help? Contact our support team</p>
+                <a href="{% url 'contact' %}" class="text-primary font-semibold hover:text-primary/70 transition">
+                    Get Support
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock main-content %}

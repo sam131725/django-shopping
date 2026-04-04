@@ -49,6 +49,15 @@ venv.bak/
 *~
 .DS_Store
 
+# Node (should be in frontend/ only)
+node_modules/
+package.json
+package-lock.json
+yarn.lock
+
+# Misc
+error.html
+
 # Celery
 celerybeat-schedule
 celerybeat.pid

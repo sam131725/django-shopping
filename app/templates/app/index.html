@@ -15,21 +15,28 @@
     <!-- Hero Content Container -->
     <div class="relative z-10 text-center px-4 md:px-8 max-w-3xl mx-auto space-y-8 md:space-y-10 animate-fade-in-up">
         
-        <!-- Logo -->
-        {% if MEDIA_URL %}
+        <!-- Circular Logo with Brand -->
         <div class="flex justify-center mb-6 md:mb-8 opacity-0 animate-fade-in-down" style="animation: fadeInDown 0.8s ease-out forwards;">
-            <img src="{{ MEDIA_URL }}products_new/logo.jpg" 
-                 alt="Sabhachik Logo" 
-                 class="h-20 md:h-28 w-auto rounded-2xl shadow-2xl" 
-                 style="object-fit: contain; backdrop-filter: blur(10px);">
+            <div class="flex items-center gap-4 md:gap-6">
+                <!-- Circular Logo Badge -->
+                <div class="w-16 md:w-20 h-16 md:h-20 rounded-full bg-gradient-to-br from-white/20 to-white/10 flex items-center justify-center overflow-hidden border-2 border-white/40 shadow-lg backdrop-blur-md">
+                    <i class="fas fa-leaf text-white text-2xl md:text-3xl"></i>
+                </div>
+                <!-- Brand Name -->
+                <div class="text-left">
+                    <div class="text-sm font-light text-white/70 mb-1">Premium Selection</div>
+                    <div style="font-size: 2.5rem;" class="md:text-5xl font-bold leading-tight">
+                        <span class="text-white">Sabha</span><span style="font-family: 'Allura', 'Tangerine', cursive; font-size: 3.5rem; color: rgba(255,255,255,0.9); letter-spacing: -0.5px; display: inline-block; margin-left: -4px;">Chick</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endif %}
         
         <!-- Main Brand Title -->
         <div class="space-y-4 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out 0.2s forwards;">
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-light text-white tracking-tight leading-tight" 
                 style="text-shadow: 2px 4px 12px rgba(0, 0, 0, 0.3); letter-spacing: -0.02em;">
-                Sabhachik
+                Curated Excellence
             </h1>
             
             <!-- Subtitle -->
@@ -83,6 +90,108 @@
     <!-- Scroll Indicator -->
     <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce" style="animation: bounce 2s infinite;">
         <i class="fas fa-chevron-down text-white/60 text-2xl"></i>
+    </div>
+</section>
+
+<!-- Featured Outfits Section -->
+<section class="relative py-20 md:py-32 px-4 md:px-8" style="background-color: #FBF9F7;">
+    
+    <div class="max-w-6xl mx-auto">
+        <!-- Section Header -->
+        <div class="text-center mb-16 md:mb-20 opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out forwards;">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-light text-text-dark mb-4">
+                Community Showcase
+            </h2>
+            <p class="text-lg md:text-xl text-text-dark/60 font-light mb-6">
+                Discover how our customers style their favorite pieces
+            </p>
+            <a href="{% url 'showcase:feed' %}" class="inline-flex items-center gap-2 px-6 md:px-8 py-3 md:py-4 rounded-full font-medium text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl"
+               style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                View All Outfits
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        
+        <!-- Featured Outfits Grid (Top 5) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {% for post in top_posts %}
+                <!-- Outfit Card -->
+                <div class="group opacity-0 animate-fade-in-up" style="animation: fadeInUp 0.8s ease-out {{ forloop.counter|add:0.1 }}s forwards;">
+                    <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 h-full flex flex-col"
+                         style="border: 1px solid rgba(200, 162, 122, 0.15);">
+                        
+                        <!-- Image Container -->
+                        <div class="relative overflow-hidden bg-accent/20 aspect-square">
+                            <img src="{{ post.image.url }}" alt="{{ post.caption }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            
+                            <!-- Like Badge -->
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                                <i class="fas fa-heart text-red-500"></i>
+                                <span class="text-sm font-semibold text-text-dark">{{ post.likes.count }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="p-6 flex flex-col justify-between flex-grow">
+                            <!-- Caption -->
+                            <p class="text-text-dark/70 font-light text-base leading-relaxed mb-4 line-clamp-3">
+                                {{ post.caption }}
+                            </p>
+                            
+                            <!-- User Info -->
+                            <div class="flex items-center justify-between pt-4 border-t border-accent/20">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold" 
+                                         style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                                        {{ post.user.username|upper|first }}
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-text-dark text-sm">{{ post.user.username }}</p>
+                                        <p class="text-xs text-text-dark/50">{{ post.created_at|date:"M d, Y" }}</p>
+                                    </div>
+                                </div>
+                                <a href="{% url 'showcase:feed' %}" class="text-primary hover:text-primary/70 transition">
+                                    <i class="fas fa-eye text-lg"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <!-- No Posts Placeholder -->
+                <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12">
+                    <div class="inline-flex flex-col items-center gap-4">
+                        <i class="fas fa-image text-4xl text-primary/30"></i>
+                        <p class="text-text-dark/60 font-light text-lg">No outfits shared yet</p>
+                        <a href="{% url 'showcase:upload' %}" class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-medium text-white transition-all duration-300 hover:scale-105"
+                           style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                            <i class="fas fa-camera"></i>
+                            Share Your First Outfit
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="mt-16 md:mt-20 text-center p-8 md:p-12 rounded-2xl"
+             style="background: linear-gradient(135deg, rgba(200, 162, 122, 0.1), rgba(232, 213, 196, 0.1)); border: 1px solid rgba(200, 162, 122, 0.2);">
+            <h3 class="text-2xl md:text-3xl font-light text-text-dark mb-4">Ready to Share Your Style?</h3>
+            <p class="text-text-dark/60 font-light mb-6">Upload your outfit photos and get likes from our community</p>
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'showcase:upload' %}" class="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                   style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                    <i class="fas fa-camera"></i>
+                    Upload Your Outfit
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl"
+                   style="background: linear-gradient(135deg, #C8A27A, #E8D5C4);">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In to Share
+                </a>
+            {% endif %}
+        </div>
     </div>
 </section>
 

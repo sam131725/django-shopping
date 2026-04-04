@@ -120,16 +120,37 @@ class Cart(models.Model):
     product = models.ForeignKey(Product,on_delete= models.CASCADE)
     quantity = models.PositiveBigIntegerField(default=1)
 
+    class Meta:
+        unique_together = ('user', 'product')
+
     @property
     def total_cost(self):
         return self.quantity * self.product.discounted_price
 
 class Order(models.Model):
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    stripe_session_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    # You can add more fields like shipping address, status, etc.
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
     def __str__(self):
         return f"Order #{self.id} by {self.user.username} on {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+    
+    @property
+    def is_paid(self):
+        return self.payment_status == 'paid'
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)

@@ -1,0 +1,193 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Showcase Feed - Sabhachik{% endblock %}
+
+{% block main-content %}
+<div class="min-h-screen bg-background pt-8 pb-16">
+    <div class="max-w-4xl mx-auto px-4 md:px-8">
+        <!-- Header -->
+        <div class="mb-12 text-center">
+            <h1 class="text-5xl md:text-6xl font-light text-text-dark mb-3">Showcase</h1>
+            <p class="text-text-dark/60 text-lg mb-8">Discover the best outfits from our community</p>
+            
+            <!-- Upload Button -->
+            {% if user.is_authenticated %}
+            <a href="{% url 'showcase:upload' %}" class="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-camera mr-2"></i>Upload Your Outfit
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login to Share
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Posts Grid -->
+        {% if posts %}
+        <div class="space-y-12">
+            {% for post in posts %}
+            <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-accent/30">
+                <!-- Post Header -->
+                <div class="px-6 py-4 border-b border-accent/20 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
+                            {{ post.user.username|first|upper }}
+                        </div>
+                        <div>
+                            <p class="font-semibold text-text-dark">{{ post.user.username }}</p>
+                            <p class="text-xs text-text-dark/50">{{ post.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Delete Button (only for post owner) -->
+                    {% if user == post.user %}
+                    <div class="flex items-center">
+                        <a href="{% url 'showcase:delete_post' post.id %}" onclick="return confirm('Delete this post?');" class="text-text-dark/40 hover:text-red-600 transition">
+                            <i class="fas fa-trash text-lg"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Post Image -->
+                <div class="relative bg-accent/10 overflow-hidden max-h-[600px]">
+                    <img src="{{ post.image.url }}" alt="{{ post.user.username }}'s outfit" class="w-full h-auto object-cover hover:scale-105 transition-transform duration-300">
+                </div>
+
+                <!-- Post Caption -->
+                {% if post.caption %}
+                <div class="px-6 py-4 border-b border-accent/20">
+                    <p class="text-text-dark/80">
+                        <span class="font-semibold text-text-dark">{{ post.user.username }}</span>
+                        {{ post.caption }}
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Post Stats -->
+                <div class="px-6 py-3 border-b border-accent/20 flex items-center gap-4 text-sm text-text-dark/60">
+                    <span class="flex items-center gap-1">
+                        <i class="fas fa-heart text-primary"></i>
+                        {{ post.like_count }} like{{ post.like_count|pluralize }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <i class="fas fa-comment text-primary"></i>
+                        {{ post.comment_count }} comment{{ post.comment_count|pluralize }}
+                    </span>
+                </div>
+
+                <!-- Like/Comment Section -->
+                <div class="px-6 py-4 space-y-4 border-b border-accent/20">
+                    <!-- Like Button -->
+                    {% if user.is_authenticated %}
+                    <button onclick="toggleLike({{ post.id }})" class="w-full flex items-center justify-center gap-2 py-2 rounded-lg transition-colors {% if user in post.likes.all %}bg-primary/10 text-primary{% else %}bg-accent/20 text-text-dark/70 hover:bg-accent/30{% endif %}">
+                        <i class="fas fa-heart"></i>
+                        <span>{% if user in post.likes.all %}Liked{% else %}Like{% endif %}</span>
+                    </button>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-accent/20 text-text-dark/70 hover:bg-accent/30 transition-colors">
+                        <i class="fas fa-heart"></i>
+                        <span>Login to Like</span>
+                    </a>
+                    {% endif %}
+                </div>
+
+                <!-- Comments Section -->
+                <div class="px-6 py-4">
+                    <!-- Existing Comments -->
+                    {% if post.comments.all %}
+                    <div class="space-y-3 mb-4 max-h-60 overflow-y-auto">
+                        {% for comment in post.comments.all %}
+                        <div class="flex gap-3 pb-3 {% if not forloop.last %}border-b border-accent/20{% endif %}">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">
+                                {{ comment.user.username|first|upper }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm">
+                                    <span class="font-semibold text-text-dark">{{ comment.user.username }}</span>
+                                    <span class="text-text-dark/80 break-words">{{ comment.text }}</span>
+                                </p>
+                                <p class="text-xs text-text-dark/40 mt-1">{{ comment.created_at|date:"M d, H:i" }}</p>
+                            </div>
+                            
+                            <!-- Delete Comment Button -->
+                            {% if user == comment.user %}
+                            <a href="{% url 'showcase:delete_comment' comment.id %}" onclick="return confirm('Delete comment?');" class="text-text-dark/30 hover:text-red-600 transition text-xs flex-shrink-0">
+                                <i class="fas fa-times"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Add Comment Form -->
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'showcase:comment' post.id %}" class="flex gap-2 mt-4 pt-4 border-t border-accent/20">
+                        {% csrf_token %}
+                        <input type="text" name="text" placeholder="Add a comment..." maxlength="300" class="flex-1 px-3 py-2 rounded-lg bg-accent/20 border border-accent/40 focus:border-transparent focus:ring-2 focus:ring-primary transition-all text-sm text-text-dark placeholder-text-dark/40" required>
+                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all text-sm font-medium flex items-center gap-1">
+                            <i class="fas fa-paper-plane"></i>
+                            <span class="hidden sm:inline">Post</span>
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-center text-sm text-text-dark/50 mt-4 pt-4 border-t border-accent/20">
+                        <a href="{% url 'login' %}" class="text-primary font-medium hover:opacity-80">Login</a> to comment
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-20">
+            <i class="fas fa-images text-6xl text-accent mb-6 block"></i>
+            <h2 class="text-2xl font-semibold text-text-dark mb-3">No posts yet</h2>
+            <p class="text-text-dark/60 mb-8">Be the first to share your outfit!</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'showcase:upload' %}" class="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 transition-all">
+                <i class="fas fa-camera mr-2"></i>Upload Your First Outfit
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 transition-all">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login to Share
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Like AJAX Script -->
+<script>
+function toggleLike(postId) {
+    const btn = event.target.closest('button');
+    
+    fetch(`/showcase/like/${postId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update button state
+        if (data.liked) {
+            btn.classList.remove('bg-accent/20', 'text-text-dark/70', 'hover:bg-accent/30');
+            btn.classList.add('bg-primary/10', 'text-primary');
+            btn.innerHTML = '<i class="fas fa-heart"></i><span>Liked</span>';
+        } else {
+            btn.classList.remove('bg-primary/10', 'text-primary');
+            btn.classList.add('bg-accent/20', 'text-text-dark/70', 'hover:bg-accent/30');
+            btn.innerHTML = '<i class="fas fa-heart"></i><span>Like</span>';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock main-content %}

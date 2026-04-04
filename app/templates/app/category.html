@@ -1,94 +1,163 @@
 {% extends 'app/base.html' %}
 {% load static %}
 
-{% block title %}Category: {{ pro }}{% endblock title %}
+{% block title %}{{ pro }} - Sabhachik{% endblock title %}
 
 {% block main-content %}
-<div class="bg-white border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 md:px-8 py-6 flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-gray-900">{{ pro }}</h1>
-        <button onclick="window.history.back()" class="flex items-center gap-2 text-gray-600 hover:text-primary transition font-medium">
-            <i class="fas fa-arrow-left"></i>
-            Back
-        </button>
+<!-- Premium Category Header -->
+<div class="bg-gradient-to-b from-white/80 to-transparent backdrop-blur-sm border-b border-accent/20">
+    <div class="max-w-7xl mx-auto px-6 md:px-8 py-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-text-dark mb-2">{{ pro }}</h1>
+                <p class="text-text-dark/60 text-sm">Curated collection of premium items</p>
+            </div>
+            <button onclick="window.history.back()" class="flex items-center gap-2 text-text-dark/70 hover:text-primary transition font-medium px-4 py-2 rounded-full bg-white/50 hover:bg-primary/10">
+                <i class="fas fa-arrow-left"></i>
+                <span class="hidden sm:inline">Back</span>
+            </button>
+        </div>
     </div>
 </div>
 
-<div class="max-w-7xl mx-auto px-4 md:px-8 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <!-- Sidebar Categories -->
-        <aside class="md:col-span-1">
-            <div class="sticky top-24 bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Categories</h3>
-                <nav class="space-y-2">
-                    {% for val in title %}
-                    <a 
-                        href="{% url 'category' val.name %}" 
-                        class="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/5 hover:text-primary hover:font-medium transition-all duration-200"
-                    >
-                        {{ val.name }}
-                    </a>
-                    {% endfor %}
-                </nav>
-            </div>
-        </aside>
-
-        <!-- Products Grid -->
-        <main class="md:col-span-3">
-            {% if product %}
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {% for item in product %}
-                <a href="{% url 'product-detail' pk=item.id %}" class="group flex flex-col bg-white rounded-xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden">
-                    <!-- Image Area -->
-                    <div class="relative w-full h-64 overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
-                        <img 
-                            src="{{ item.product_image.url }}" 
-                            alt="{{ item.title }}" 
-                            class="max-h-64 max-w-full object-contain object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-                        >
-                    </div>
+<!-- Main Content -->
+<div class="min-h-screen bg-background/50">
+    <div class="max-w-7xl mx-auto px-6 md:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            
+            <!-- LEFT SIDEBAR: Categories Filter -->
+            <aside class="md:col-span-1">
+                <div class="sticky top-24 bg-white/70 backdrop-blur-md rounded-2xl border border-accent/20 p-6 shadow-md">
+                    <h3 class="text-lg font-bold text-text-dark mb-6 flex items-center gap-2">
+                        <i class="fas fa-filter text-primary"></i>
+                        Categories
+                    </h3>
                     
-                    <!-- Details Area -->
-                    <div class="p-5 flex flex-col flex-grow">
-                        <p class="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">{{ item.category.name }}</p>
-                        <h3 class="text-base font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                            {{ item.title }}
-                        </h3>
-                        <p class="text-sm text-gray-600 mb-4 line-clamp-2 flex-grow">
-                            {{ item.description|truncatewords:15 }}
-                        </p>
+                    <nav class="space-y-1">
+                        <!-- All Categories Link -->
+                        <a 
+                            href="{% url 'home' %}" 
+                            class="block px-4 py-3 rounded-xl text-text-dark/70 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                        >
+                            All Products
+                        </a>
                         
-                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <div class="flex flex-col">
-                                <span class="text-lg font-bold text-gray-900">₹{{ item.discounted_price }}</span>
-                                {% if item.selling_price != item.discounted_price %}
-                                <span class="text-sm text-gray-400 line-through">₹{{ item.selling_price }}</span>
-                                {% endif %}
-                            </div>
-                            
-                            <a href="{% url 'add-to-cart' %}?prod_id={{ item.id }}" class="w-10 h-10 rounded-full bg-gray-50 hover:bg-primary text-gray-600 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:shadow-md">
-                                <i class="fas fa-plus"></i>
+                        <!-- Category Links -->
+                        {% for val in title %}
+                        <a 
+                            href="{% url 'category' val.name %}" 
+                            class="block px-4 py-3 rounded-xl text-text-dark/70 text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                        >
+                            {{ val.name }}
+                        </a>
+                        {% endfor %}
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- RIGHT SIDE: Products Grid -->
+            <main class="md:col-span-3 lg:col-span-4">
+                {% if product %}
+                    <!-- Product Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {% for item in product %}
+                        <!-- Premium Product Card -->
+                        <div class="group h-full">
+                            <a href="{% url 'product-detail' pk=item.id %}" class="flex flex-col h-full bg-white/70 backdrop-blur-md rounded-2xl border border-accent/20 shadow-md hover:shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-1">
+                                
+                                <!-- Image Container -->
+                                <div class="relative w-full h-64 bg-gradient-to-br from-accent/30 to-transparent overflow-hidden">
+                                    <img 
+                                        src="{{ item.product_image.url }}" 
+                                        alt="{{ item.title }}" 
+                                        class="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
+                                    >
+                                    
+                                    <!-- Category Badge (Top-left) -->
+                                    <span class="absolute top-4 left-4 bg-primary/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+                                        {{ item.category.name }}
+                                    </span>
+                                </div>
+
+                                <!-- Content Section -->
+                                <div class="p-6 flex flex-col flex-grow">
+                                    
+                                    <!-- Title -->
+                                    <h3 class="text-lg font-bold text-text-dark mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">
+                                        {{ item.title }}
+                                    </h3>
+
+                                    <!-- Description -->
+                                    <p class="text-sm text-text-dark/60 mb-4 line-clamp-2 flex-grow">
+                                        {{ item.description|truncatewords:12 }}
+                                    </p>
+
+                                    <!-- Price Section -->
+                                    <div class="flex items-baseline gap-2 mb-6 pt-4 border-t border-accent/30">
+                                        <span class="text-2xl font-bold text-primary">
+                                            ₹{{ item.discounted_price }}
+                                        </span>
+                                        {% if item.selling_price != item.discounted_price %}
+                                            <span class="text-sm text-text-dark/40 line-through">
+                                                ₹{{ item.selling_price }}
+                                            </span>
+                                            <span class="ml-auto text-xs font-bold text-primary/80 bg-primary/10 px-2.5 py-1 rounded-full">
+                                                Save
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Action Button -->
+                                <a href="{% url 'add-to-cart' %}?prod_id={{ item.id }}" class="m-6 mt-0 flex items-center justify-center gap-2 bg-primary text-white font-semibold py-3 px-6 rounded-xl hover:bg-[#b8936c] shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95">
+                                    <i class="fas fa-shopping-bag text-sm"></i>
+                                    Add to Cart
+                                </a>
                             </a>
                         </div>
+                        {% endfor %}
                     </div>
-                </a>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="col-span-full py-16 text-center">
-                <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
-                <h3 class="text-2xl font-semibold text-gray-900 mb-2">No Products Found</h3>
-                <p class="text-gray-600">Try browsing other categories or use the search feature.</p>
-            </div>
-            {% endif %}
-        </main>
+
+                {% else %}
+                    <!-- No Products State -->
+                    <div class="col-span-full text-center py-24">
+                        <div class="mb-6">
+                            <i class="fas fa-inbox text-7xl text-accent/30 mb-4 inline-block"></i>
+                        </div>
+                        <h3 class="text-3xl font-bold text-text-dark mb-3">No Products Found</h3>
+                        <p class="text-text-dark/60 text-lg mb-8">
+                            This category is currently empty. Try browsing other categories or use the search feature.
+                        </p>
+                        <a href="{% url 'home' %}" class="inline-flex items-center gap-2 bg-primary text-white font-semibold py-3 px-8 rounded-xl hover:bg-[#b8936c] transition-all duration-300 shadow-md hover:shadow-lg">
+                            <i class="fas fa-home"></i>
+                            Back to Home
+                        </a>
+                    </div>
+                {% endif %}
+            </main>
+        </div>
     </div>
 </div>
 
+<!-- Subtle Decorative Elements -->
 <style>
-    /* Smooth transitions */
+    /* Ensure smooth text rendering */
+    body { -webkit-font-smoothing: antialiased; }
+
+    /* Backdrop blur support */
+    @supports (backdrop-filter: blur(10px)) {
+        .backdrop-blur-md {
+            backdrop-filter: blur(12px);
+        }
+    }
+
+    /* Smooth hover transitions */
     a { text-decoration: none; }
+    
+    /* Remove link underlines */
+    button { text-decoration: none; }
 </style>
+
 {% endblock main-content %}
 
 

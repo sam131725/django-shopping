@@ -1,0 +1,75 @@
+{% load static %}
+
+<!-- Showcase Section for Homepage -->
+<section class="py-20 md:py-28 px-4 md:px-8 bg-background">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-16 md:mb-20">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-light text-text-dark mb-4">
+                Community Showcase
+            </h2>
+            <p class="text-lg md:text-xl text-text-dark/60 font-light mb-8">
+                Discover the best outfits from our community
+            </p>
+            <a href="{% url 'showcase:feed' %}" class="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-full font-semibold hover:opacity-90 transition-all shadow-sm hover:shadow-md">
+                <i class="fas fa-arrow-right mr-2"></i>Explore All Outfits
+            </a>
+        </div>
+
+        <!-- Top Posts Grid -->
+        {% if top_posts %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8">
+            {% for post in top_posts %}
+            <!-- Post Card -->
+            <a href="{% url 'showcase:feed' %}" class="group block">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 h-full border border-accent/30 hover:border-primary/30">
+                    <!-- Image Container -->
+                    <div class="relative overflow-hidden bg-accent/10 aspect-square">
+                        <img src="{{ post.image.url }}" alt="{{ post.user.username }}'s outfit" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        
+                        <!-- Overlay with User Info -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                            <div>
+                                <p class="font-semibold text-white text-sm">{{ post.user.get_full_name|default:post.user.username }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Info -->
+                    <div class="p-4 md:p-5">
+                        <!-- Caption Preview -->
+                        {% if post.caption %}
+                        <p class="text-text-dark/80 text-sm mb-3 line-clamp-2">
+                            {{ post.caption }}
+                        </p>
+                        {% endif %}
+
+                        <!-- Stats -->
+                        <div class="flex items-center justify-between text-xs text-text-dark/50 space-x-3">
+                            <span class="flex items-center gap-1">
+                                <i class="fas fa-heart text-primary"></i>
+                                {{ post.total_likes }} like{{ post.total_likes|pluralize }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i class="fas fa-comment text-primary"></i>
+                                {{ post.total_comments }} comment{{ post.total_comments|pluralize }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <i class="fas fa-calendar text-primary"></i>
+                                {{ post.created_at|date:"M d" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-16 bg-white rounded-2xl border border-accent/30">
+            <i class="fas fa-images text-5xl text-accent mb-4 block"></i>
+            <p class="text-text-dark/60 text-lg">Be the first to share your outfit in our showcase!</p>
+        </div>
+        {% endif %}
+    </div>
+</section>

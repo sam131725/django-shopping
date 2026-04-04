@@ -59,6 +59,14 @@ path('password-reset-complete/',
 
 path('assistant/', views.assistant, name='assistant'),
 
+# Stripe Payment Routes
+path('stripe-checkout/', views.checkout_view, name='stripe-checkout'),
+path('payment-success/', views.payment_success_view, name='payment-success'),
+path('payment-cancel/', views.payment_cancel_view, name='payment-cancel'),
+path('stripe-webhook/', views.stripe_webhook_view, name='stripe-webhook'),
+path('order-history/', views.order_history_view, name='order-history'),
+path('order-detail/<int:order_id>/', views.order_detail_view, name='order-detail'),
+
 # API Routes
 path('api/products/', api_views.ProductListAPIView.as_view(), name='api-products'),
 path('api/categories/', api_views.CategoryListAPIView.as_view(), name='api-categories'),

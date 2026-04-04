@@ -1,0 +1,190 @@
+{% extends 'app/base.html' %}
+{% load static %}
+
+{% block title %}Upload Outfit - Sabhachik Showcase{% endblock %}
+
+{% block main-content %}
+<div class="min-h-screen bg-background pt-8 pb-16">
+    <div class="max-w-2xl mx-auto px-4 md:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <a href="{% url 'showcase:feed' %}" class="inline-block mb-8 text-text-dark/70 hover:text-primary transition font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Feed
+            </a>
+            <h1 class="text-5xl md:text-6xl font-light text-text-dark mb-3">Share Your Outfit</h1>
+            <p class="text-text-dark/60">Upload a photo and tell the community about your style</p>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="bg-white rounded-3xl shadow-lg p-8 md:p-12 border border-accent/30">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                <!-- Image Upload -->
+                <div class="mb-8">
+                    <label for="{{ form.image.id_for_label }}" class="block text-lg font-semibold text-text-dark mb-4">
+                        {% if form.image.label %}{{ form.image.label }}{% else %}Upload Photo{% endif %}
+                    </label>
+                    
+                    <div class="mb-4">
+                        {% if form.image %}
+                        <input 
+                            type="file" 
+                            name="{{ form.image.name }}" 
+                            id="{{ form.image.id_for_label }}"
+                            accept="image/*"
+                            class="block w-full px-4 py-3 rounded-lg bg-accent/20 border-2 border-dashed border-accent/40 focus:border-transparent focus:ring-2 focus:ring-primary transition-all cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:opacity-90"
+                        />
+                        {% endif %}
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div id="imagePreview" class="mb-4">
+                        <img id="previewImg" src="" alt="Preview" style="display:none;" class="w-full h-auto max-h-96 object-cover rounded-lg border border-accent/30">
+                    </div>
+
+                    <!-- Error Messages -->
+                    {% if form.image.errors %}
+                    <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-sm text-red-700 flex items-start gap-2">
+                            <i class="fas fa-exclamation-circle mt-0.5 flex-shrink-0"></i>
+                            {% for error in form.image.errors %}
+                            <span>{{ error }}</span>
+                            {% endfor %}
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Help Text -->
+                    <p class="text-sm text-text-dark/50 mt-4">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Recommended size: 1:1 or 4:5 aspect ratio. Max 10MB
+                    </p>
+                </div>
+
+                <!-- Caption -->
+                <div class="mb-8">
+                    <label for="{{ form.caption.id_for_label }}" class="block text-lg font-semibold text-text-dark mb-4">
+                        {{ form.caption.label }}
+                    </label>
+                    
+                    <div class="relative">
+                        {% if form.caption %}
+                        <textarea 
+                            name="{{ form.caption.name }}" 
+                            id="{{ form.caption.id_for_label }}"
+                            placeholder="Write a caption for your outfit... (optional)"
+                            class="block w-full px-4 py-3 rounded-lg bg-accent/20 border border-accent/40 focus:border-transparent focus:ring-2 focus:ring-primary transition-all resize-vertical"
+                            rows="4"
+                            maxlength="500"
+                        ></textarea>
+                        {% endif %}
+                    </div>
+
+                    <!-- Character Count -->
+                    <div class="flex items-center justify-between mt-2">
+                        <p class="text-sm text-text-dark/50">Share what makes this outfit special</p>
+                        <span id="charCount" class="text-xs text-text-dark/40">0/500</span>
+                    </div>
+
+                    <!-- Error Messages -->
+                    {% if form.caption.errors %}
+                    <div class="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-sm text-red-700">
+                            {% for error in form.caption.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Non-field Errors -->
+                {% if form.non_field_errors %}
+                <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-exclamation-circle text-red-600 mt-0.5 flex-shrink-0"></i>
+                        <div>
+                            <h3 class="font-semibold text-red-900 text-sm mb-1">Error</h3>
+                            <ul class="text-red-700 text-sm space-y-1">
+                                {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 bg-primary text-white py-4 rounded-lg font-semibold hover:opacity-90 focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                        <i class="fas fa-upload"></i>
+                        Share Outfit
+                    </button>
+                    <a href="{% url 'showcase:feed' %}" class="flex-1 bg-accent/30 text-text-dark py-4 rounded-lg font-semibold hover:bg-accent/40 transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+
+                <!-- Tips -->
+                <div class="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-xl">
+                    <h3 class="font-semibold text-text-dark mb-3 flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-primary"></i>
+                        Tips for Great Posts
+                    </h3>
+                    <ul class="text-sm text-text-dark/70 space-y-2">
+                        <li class="flex items-start gap-2">
+                            <span class="text-primary flex-shrink-0 mt-0.5">•</span>
+                            <span>Use good lighting and clear photos of your outfit</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-primary flex-shrink-0 mt-0.5">•</span>
+                            <span>Write engaging captions to get more likes and comments</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-primary flex-shrink-0 mt-0.5">•</span>
+                            <span>Tag products or brands you're featuring (in caption)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="text-primary flex-shrink-0 mt-0.5">•</span>
+                            <span>Engage with other posts to grow your presence</span>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview Script -->
+<script>
+const fileInput = document.getElementById('{{ form.image.id_for_label }}');
+const previewImg = document.getElementById('previewImg');
+const charCount = document.getElementById('charCount');
+const captionInput = document.getElementById('{{ form.caption.id_for_label }}');
+
+// Image preview
+if (fileInput) {
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
+// Character count
+if (captionInput) {
+    captionInput.addEventListener('input', function() {
+        charCount.textContent = this.value.length + '/500';
+    });
+}
+</script>
+{% endblock main-content %}

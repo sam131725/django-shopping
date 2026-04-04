@@ -7,8 +7,8 @@
     <meta name="description" content="A sample premium products page.">
     <title>Sabhachik | {% block title %}{% endblock title %}</title>
     
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter + Cursive Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Allura&family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     
@@ -53,15 +53,25 @@
         <div class="max-w-7xl mx-auto px-4 md:px-8">
             <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <a href="{% url 'home' %}" class="flex items-center gap-2 text-2xl font-bold text-text-dark hover:text-primary transition">
-                    <i class="fas fa-shopping-bag text-primary"></i>
-                    <span>Sabhachik</span>
+                <a href="{% url 'home' %}" class="flex items-center gap-3 hover:opacity-80 transition group">
+                    <!-- Circular Logo Image -->
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden border-2 border-primary/30 shadow-md group-hover:shadow-lg transition-shadow">
+                        <i class="fas fa-leaf text-white text-lg"></i>
+                    </div>
+                    <!-- Brand Name -->
+                    <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-text-dark/60 -mb-1">स</span>
+                        <div class="text-xl font-bold">
+                            <span class="text-text-dark">Sabha</span><span class="font-allura text-primary" style="font-family: 'Allura', 'Tangerine', cursive; font-size: 1.4rem; letter-spacing: -0.5px;">Chick</span>
+                        </div>
+                    </div>
                 </a>
 
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{% url 'home' %}" class="text-text-dark/70 hover:text-primary font-medium transition">Home</a>
                     <a href="{% url 'assistant' %}" class="text-text-dark/70 hover:text-primary font-medium transition">Inspiration</a>
+                    <a href="{% url 'showcase:feed' %}" class="text-text-dark/70 hover:text-primary font-medium transition">Showcase</a>
                     <a href="{% url 'about' %}" class="text-text-dark/70 hover:text-primary font-medium transition">About</a>
                     
                     <!-- Modern Search Bar -->
@@ -130,8 +140,14 @@
     <!-- Minimal Footer -->
     <footer class="bg-white/60 border-t border-accent/30 mt-16 py-10 backdrop-blur-sm">
         <div class="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-2 text-text-dark font-bold text-xl">
-                <i class="fas fa-shopping-bag text-primary"></i> Sabhachik
+            <div class="flex items-center gap-3 text-text-dark font-bold text-lg">
+                <!-- Circular Logo -->
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center overflow-hidden border border-primary/30">
+                    <i class="fas fa-leaf text-white text-sm"></i>
+                </div>
+                <div>
+                    <span class="text-text-dark">Sabha</span><span style="font-family: 'Allura', 'Tangerine', cursive; font-size: 1.1rem; color: #C8A27A; letter-spacing: -0.5px;">Chick</span>
+                </div>
             </div>
             <p class="text-text-dark/50 text-sm">© 2026 Sabhachik. Crafted with intention.</p>
             <div class="flex gap-4 text-text-dark/40 hover:text-primary transition">

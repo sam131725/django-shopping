@@ -1,6 +1,6 @@
 from django.db.models import Count
 from django.http import JsonResponse
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views import View
 from .models import Customer, Product, Cart, PriceAlert
@@ -11,7 +11,7 @@ from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import os
 from dotenv import load_dotenv
@@ -44,6 +44,9 @@ def get_descendant_categories(category):
     return descendants
 
 def home(request):
+    from django.conf import settings
+    from showcase.views import get_top_posts
+    
     # Show latest products as new products
     new_products = Product.objects.order_by('-id')[:8]  # Show latest 8 products
     main_categories = Category.objects.filter(parent=None)
@@ -58,10 +61,15 @@ def home(request):
     )
     slideshow_products = Product.objects.filter(category__in=clothing_categories)[:6] if clothing_categories.exists() else Product.objects.order_by('-id')[:6]
     
+    # Get top posts from showcase
+    top_posts = get_top_posts(limit=5)
+    
     return render(request, "app/index.html", {
         'new_products': new_products,
         'main_categories': main_categories,
         'slideshow_products': slideshow_products,
+        'top_posts': top_posts,
+        'MEDIA_URL': settings.MEDIA_URL,
     })
 def about(request):
     return render(request, "app/about.html")
@@ -115,8 +123,8 @@ class CategoryTitle(View):
         return render(request,"app/category.html",locals())
 class ProductDetail(View):
     def get(self, request, pk):
-        # Fetch the specific product based on pk
-        product = Product.objects.get(pk=pk)
+        """Fetch the specific product based on pk, return 404 if not found."""
+        product = get_object_or_404(Product, pk=pk)
         existing_alert = None
         if request.user.is_authenticated:
             existing_alert = PriceAlert.objects.filter(user=request.user, product=product, fulfilled=False).first()
@@ -191,12 +199,44 @@ class updateAdress(View):
         else:
           messages.warning(request,"invalid data :)")
         return redirect("address")
-@login_required
+@login_required(login_url='login')
 def add_to_cart(request):
+    """Add product to user's cart. If already exists, increment quantity."""
     user = request.user
-    product_id = request.GET.get('prod_id')
-    product = Product.objects.get(id=product_id)
-    Cart.objects.create(user=user, product=product)
+    
+    # Get product_id from both GET and POST parameters
+    product_id = request.GET.get('prod_id') or request.POST.get('prod_id')
+    
+    # Validate product_id exists
+    if not product_id:
+        messages.error(request, 'No product selected.')
+        return redirect('home')
+    
+    # Try to get the product, redirect if not found
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        messages.error(request, 'Product not found. It may have been removed.')
+        return redirect('home')
+    except (ValueError, TypeError):
+        messages.error(request, 'Invalid product ID.')
+        return redirect('home')
+    
+    # Get or create cart item, increment quantity if exists
+    cart_item, created = Cart.objects.get_or_create(
+        user=user, 
+        product=product,
+        defaults={'quantity': 1}
+    )
+    
+    if not created:
+        # Item already exists, increment quantity
+        cart_item.quantity += 1
+        cart_item.save()
+        messages.success(request, f'{product.title} quantity updated!')
+    else:
+        messages.success(request, f'{product.title} added to cart!')
+    
     return redirect("showcart")
 
 @login_required
@@ -294,7 +334,7 @@ def remove_cart(request):
 @require_POST
 def set_price_alert(request, pk):
     """Handle the form submission coming from the product-detail page."""
-    product = Product.objects.get(pk=pk)
+    product = get_object_or_404(Product, pk=pk)
 
     try:
         target_price = float(request.POST.get('target_price'))
@@ -324,12 +364,30 @@ def set_price_alert(request, pk):
 
     return redirect('product-detail', pk=pk)
 
-@login_required
+@login_required(login_url='login')
 def buy_now(request):
     """Add item to cart (if not already) and go straight to checkout."""
     user = request.user
-    product_id = request.GET.get('prod_id')
-    product = Product.objects.get(id=product_id)
+    
+    # Get product_id from both GET and POST parameters
+    product_id = request.GET.get('prod_id') or request.POST.get('prod_id')
+    
+    # Validate product_id exists
+    if not product_id:
+        messages.error(request, 'No product selected.')
+        return redirect('home')
+    
+    # Try to get the product, redirect if not found
+    try:
+        product = Product.objects.get(id=product_id)
+    except Product.DoesNotExist:
+        messages.error(request, 'Product not found. It may have been removed.')
+        return redirect('home')
+    except (ValueError, TypeError):
+        messages.error(request, 'Invalid product ID.')
+        return redirect('home')
+    
+    # Add to cart and proceed to checkout
     Cart.objects.get_or_create(user=user, product=product, defaults={'quantity': 1})
     return redirect('checkout')
 
@@ -747,3 +805,254 @@ def handle_product_query_full(user_query, model):
     """Full handler for product queries (non-AJAX version)."""
     return handle_product_query(user_query, model)
 
+
+# ---------------------------------------------------------------------------
+#  STRIPE PAYMENT INTEGRATION
+# ---------------------------------------------------------------------------
+
+import stripe
+from django.conf import settings
+from decimal import Decimal
+
+# Configure Stripe API key
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+@login_required(login_url='login')
+def checkout_view(request):
+    """
+    Create Stripe checkout session from cart items.
+    Calculates total, creates order with pending status, and redirects to Stripe.
+    """
+    user = request.user
+    cart_items = Cart.objects.filter(user=user)
+    
+    if not cart_items.exists():
+        messages.error(request, 'Your cart is empty!')
+        return redirect('showcart')
+    
+    # Calculate total from database (NEVER trust frontend)
+    line_items = []
+    total_amount = Decimal('0.00')
+    
+    for cart_item in cart_items:
+        product = cart_item.product
+        quantity = cart_item.quantity
+        price = int(product.discounted_price * 100)  # Convert to paise
+        
+        line_items.append({
+            'price_data': {
+                'currency': 'inr',
+                'product_data': {
+                    'name': product.title,
+                    'description': product.description[:255] if product.description else '',
+                    'images': [request.build_absolute_uri(product.product_image.url)] if product.product_image else [],
+                },
+                'unit_amount': price,
+            },
+            'quantity': quantity,
+        })
+        
+        total_amount += Decimal(product.discounted_price) * quantity
+    
+    # Add shipping cost (₹40)
+    line_items.append({
+        'price_data': {
+            'currency': 'inr',
+            'product_data': {
+                'name': 'Shipping',
+            },
+            'unit_amount': 4000,  # ₹40 in paise
+        },
+        'quantity': 1,
+    })
+    total_amount += Decimal('40.00')
+    
+    try:
+        # Create Stripe session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
+            mode='payment',
+            success_url=request.build_absolute_uri('/payment-success/?session_id={CHECKOUT_SESSION_ID}'),
+            cancel_url=request.build_absolute_uri('/payment-cancel/'),
+            customer_email=user.email,
+        )
+        
+        # Create order with pending status
+        from .models import Order
+        order = Order.objects.create(
+            user=user,
+            total_amount=total_amount,
+            payment_status='pending',
+            stripe_session_id=session.id,
+        )
+        
+        # Store order ID in session for server-side verification
+        request.session['pending_order_id'] = order.id
+        
+        return redirect(session.url)
+        
+    except stripe.error.StripeError as e:
+        messages.error(request, f'Payment error: {str(e)}')
+        return redirect('showcart')
+
+
+@login_required(login_url='login')
+def payment_success_view(request):
+    """
+    Verify Stripe payment status and mark order as paid.
+    Retrieves session using session_id from URL query parameter.
+    """
+    from .models import Order
+    
+    session_id = request.GET.get('session_id')
+    if not session_id:
+        messages.error(request, 'Invalid payment session. Please contact support.')
+        return redirect('home')
+    
+    try:
+        # Retrieve session from Stripe API
+        session = stripe.checkout.Session.retrieve(session_id)
+        
+        # Verify payment status
+        if session.payment_status != 'paid':
+            messages.error(request, 'Payment was not completed. Please try again.')
+            return redirect('showcart')
+        
+        # Find order by stripe_session_id
+        try:
+            order = Order.objects.get(stripe_session_id=session_id, user=request.user)
+        except Order.DoesNotExist:
+            messages.error(request, 'Order not found. Please contact support.')
+            return redirect('home')
+        
+        # Mark order as paid
+        order.payment_status = 'paid'
+        order.save()
+        
+        # Create OrderItems from cart
+        cart_items = Cart.objects.filter(user=request.user)
+        from .models import OrderItem
+        
+        for cart_item in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity,
+                price=cart_item.product.discounted_price,
+            )
+        
+        # Clear cart after order confirmation
+        cart_items.delete()
+        
+        messages.success(request, f'Payment successful! Order #{order.id} confirmed.')
+        
+        return render(request, 'app/payment_success.html', {
+            'order': order,
+        })
+        
+    except stripe.error.InvalidRequestError:
+        messages.error(request, 'Invalid payment session. Please contact support.')
+        return redirect('home')
+    except stripe.error.StripeError as e:
+        messages.error(request, f'Payment verification error: {str(e)}')
+        return redirect('showcart')
+
+
+@login_required(login_url='login')
+def payment_cancel_view(request):
+    """
+    Payment cancelled by user. Order remains in pending state.
+    """
+    return render(request, 'app/payment_cancel.html')
+
+
+@csrf_exempt  # Stripe webhook doesn't include CSRF token
+@require_http_methods(["POST"])
+def stripe_webhook_view(request):
+    """
+    Stripe webhook handler. Verifies signature and processes checkout.session.completed event.
+    """
+    from .models import Order, OrderItem
+    
+    payload = request.body
+    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    
+    try:
+        # Verify Stripe signature
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError:
+        return JsonResponse({'error': 'Invalid payload'}, status=400)
+    except stripe.error.SignatureVerificationError:
+        return JsonResponse({'error': 'Invalid signature'}, status=400)
+    
+    # Handle checkout.session.completed event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        session_id = session['id']
+        
+        try:
+            # Find order by Stripe session ID
+            order = Order.objects.get(stripe_session_id=session_id)
+            
+            # Mark order as paid
+            order.payment_status = 'paid'
+            order.save()
+            
+            # Save order items from cart
+            cart_items = Cart.objects.filter(user=order.user)
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    price=cart_item.product.discounted_price,
+                )
+            
+            # Clear cart
+            cart_items.delete()
+            
+            return JsonResponse({'success': True}, status=200)
+            
+        except Order.DoesNotExist:
+            return JsonResponse({'error': 'Order not found'}, status=404)
+    
+    return JsonResponse({'success': True}, status=200)
+
+
+@login_required(login_url='login')
+def order_history_view(request):
+    """
+    Display order history for logged-in user.
+    """
+    from .models import Order
+    from django.core.paginator import Paginator
+    
+    user = request.user
+    orders = Order.objects.filter(user=user).prefetch_related('items__product')
+    
+    # Add pagination
+    paginator = Paginator(orders, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'app/order_history.html', {
+        'page_obj': page_obj,
+        'orders': page_obj.object_list,
+    })
+
+
+@login_required(login_url='login')
+def order_detail_view(request, order_id):
+    """
+    Display details of a specific order.
+    """
+    from .models import Order
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    return render(request, 'app/order_detail.html', {
+        'order': order,
+    })
