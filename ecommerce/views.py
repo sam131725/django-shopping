@@ -18,11 +18,11 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', '') == 'True'
 DEFAULT_FROM_EMAIL = "no-reply@chickstyle.local"
 
 
-genai.configure(api_key="AIzaSyBwcwV_uM4Zpo1zNMlirR-tFmABeY57Igg")
+genai.configure(api_key=GEMINI_API_KEY)
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Product  # Adjust import as needed
+from app.models import Product  # Adjust import as needed
 
 
 @csrf_exempt

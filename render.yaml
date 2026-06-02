@@ -1,0 +1,87 @@
+services:
+  # Main Web Service for Django
+  - type: web
+    name: django-shopping
+    env: python
+    pythonVersion: 3.11.7
+    buildCommand: ./build.sh
+    startCommand: gunicorn ecommerce.wsgi
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: django-shopping-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: django-shopping-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: django-shopping-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: STRIPE_PUBLIC_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+  # Celery Worker Service
+  - type: worker
+    name: django-shopping-worker
+    env: python
+    pythonVersion: 3.11.7
+    buildCommand: ./build.sh
+    startCommand: celery -A ecommerce worker -l info
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: django-shopping-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: django-shopping-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: django-shopping-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: STRIPE_PUBLIC_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+  # Redis Instance for Celery Broker
+  - type: redis
+    name: django-shopping-redis
+    ipAllowList: [] # only allow internal connections
+
+databases:
+  # PostgreSQL Database
+  - name: django-shopping-db
