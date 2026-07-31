@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login,logout
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import os
@@ -119,6 +120,9 @@ class CategoryView(View):
 class CategoryTitle(View):
     def get(self,request,val):
         product = Product.objects.filter(title= val)
+        if not product.exists():
+            # No product with this title: avoid IndexError and show an empty result
+            return render(request, "app/category.html", {"product": [], "pro": val, "title": []})
         title = Product.objects.filter(category=product[0].category).values('title')
         return render(request,"app/category.html",locals())
 class ProductDetail(View):
@@ -142,6 +146,7 @@ class CustomerRegistrationView(View):
            messages.warning(request,"Invalid data")
        
        return render(request, 'app/rregistration.html', locals())
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class ProfileView(View):
     def get(self,request):
        form =  CustomerProfileform()
@@ -173,19 +178,22 @@ class ProfileView(View):
             messages.error(request, 'There was an error updating your profile. Please check your inputs.')
         return render(request, 'app/profile.html', locals())
            
+@login_required(login_url='login')
 def address(request):
     add = Customer.objects.filter(user=request.user)
     return render ( request ,'app/address.html',locals())
 
+@method_decorator(login_required(login_url='login'), name='dispatch')
 class updateAdress(View):
     def get(self,request,pk):
-        add = Customer.objects.get(pk=pk)
+        # Scope to the logged-in user so one account can't edit another's saved address
+        add = get_object_or_404(Customer, pk=pk, user=request.user)
         form = CustomerProfileform(instance=add)
         return render ( request ,'app/updateaddress.html',locals())
     def post(self,request,pk):
         form = CustomerProfileform(request.POST)
         if form.is_valid():
-          add = Customer.objects.get(pk=pk)
+          add = get_object_or_404(Customer, pk=pk, user=request.user)
           add.name = form.cleaned_data['name']
           add.locality = form.cleaned_data['locality']
           add.city = form.cleaned_data['city']
@@ -262,10 +270,14 @@ def logout_view(request):
     logout(request)  # This function clears the session and logs out the user.
     return redirect('login')     
 
+@login_required
 def plus_cart(request):
     if request.method == 'GET':
-        prod_id = request.GET['prod_id']
-        c = Cart.objects.get(Q(product=prod_id) & Q(user=request.user))
+        prod_id = request.GET.get('prod_id')
+        try:
+            c = Cart.objects.get(Q(product=prod_id) & Q(user=request.user))
+        except (Cart.DoesNotExist, ValueError, TypeError):
+            return JsonResponse({'error': 'Cart item not found'}, status=404)
         c.quantity +=1
         c.save()
         user = request.user
@@ -282,13 +294,26 @@ def plus_cart(request):
 
         }
         return JsonResponse(data)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+@login_required
 def minus_cart(request):
     if request.method == 'GET':
-        prod_id = request.GET['prod_id']
-        c = Cart.objects.get(Q(product=prod_id) & Q(user=request.user))
-        c.quantity -=1
-        c.save()
+        prod_id = request.GET.get('prod_id')
+        try:
+            c = Cart.objects.get(Q(product=prod_id) & Q(user=request.user))
+        except (Cart.DoesNotExist, ValueError, TypeError):
+            return JsonResponse({'error': 'Cart item not found'}, status=404)
+
+        if c.quantity <= 1:
+            # Quantity would drop to zero/negative: remove the item instead
+            c.delete()
+            c_quantity = 0
+        else:
+            c.quantity -= 1
+            c.save()
+            c_quantity = c.quantity
+
         user = request.user
         cart = Cart.objects.filter(user=user)
         amount = 0
@@ -297,19 +322,23 @@ def minus_cart(request):
             amount = amount + value
         totalamount = amount + 40
         data= {
-            'quantity': c.quantity,
+            'quantity': c_quantity,
             'amount': amount,
             'totalamount':totalamount
 
         }
         return JsonResponse(data)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-    
+
+@login_required
 def remove_cart(request):
     if request.method == 'GET':
-        prod_id = request.GET['prod_id']
-        c = Cart.objects.get(Q(product=prod_id) & Q(user=request.user))
-        c.quantity -=1
+        prod_id = request.GET.get('prod_id')
+        try:
+            c = Cart.objects.get(Q(product=prod_id) & Q(user=request.user))
+        except (Cart.DoesNotExist, ValueError, TypeError):
+            return JsonResponse({'error': 'Cart item not found'}, status=404)
         c.delete()
         user = request.user
         cart = Cart.objects.filter(user=user)
@@ -319,12 +348,13 @@ def remove_cart(request):
             amount = amount + value
         totalamount = amount + 40
         data= {
-            'quantity': c.quantity,
+            'quantity': 0,
             'amount': amount,
             'totalamount':totalamount
 
         }
         return JsonResponse(data)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 # ---------------------------------------------------------------------------
 #  PRICE ALERTS
@@ -585,7 +615,10 @@ Which of these products best match the user's request? Only return a valid Pytho
                 """
                 product_cards.append(card)
             # 5. Compose the response
-            summary = f"<div class='mb-2'><b>Recipe & Ingredients:</b><br>{recipe_text.replace('\n','<br>')}</div>"
+            # (backslashes aren't allowed inside f-string expressions on Python < 3.12,
+            # so do the replace on its own line first)
+            recipe_text_html = recipe_text.replace('\n', '<br>')
+            summary = f"<div class='mb-2'><b>Recipe & Ingredients:</b><br>{recipe_text_html}</div>"
             if matched_products.exists():
                 summary += "<div class='mb-2'><b>Recommended products from our store under your budget:</b></div>"
                 summary += ''.join(product_cards)

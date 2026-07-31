@@ -177,15 +177,20 @@ STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
-# SECURITY (SAFE TO ENABLE AFTER TEST)
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURITY
+# These must stay OFF while running locally over plain http (DEBUG=True) —
+# with them force-enabled, browsers refuse to store/send the session and
+# CSRF cookies over http, which breaks login and every POST/form on
+# localhost. They only make sense once the app is actually served over
+# https in production.
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 SECURE_BROWSER_XSS_FILTER = True
 
-# HSTS
-SECURE_HSTS_SECONDS = 31536000
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+# HSTS (also only meaningful over https)
+SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = not DEBUG
 
 # CELERY
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')

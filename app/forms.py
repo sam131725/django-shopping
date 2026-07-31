@@ -84,16 +84,19 @@ class CustomerProfileform(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Enter your city',
             }),
-            'mobile': forms.NumberInput(attrs={
+            'mobile': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Enter your mobile number',
+                'inputmode': 'tel',
             }),
             'state': forms.Select(attrs={
                 'class': 'form-select',
             }),
-            'zipcode': forms.NumberInput(attrs={
+            'zipcode': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Enter your zip code',
+                'placeholder': 'Enter your 6-digit zip code',
+                'inputmode': 'numeric',
+                'maxlength': '6',
             }),
         }
 class MyPasswordChangeForm(PasswordChangeForm):

@@ -1,7 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import RegexValidator
 from django.utils.text import slugify
 # Create your models here.
+
+mobile_validator = RegexValidator(
+    regex=r'^\+?\d{7,15}$',
+    message="Enter a valid mobile number (7-15 digits, optionally starting with '+').",
+)
+zipcode_validator = RegexValidator(
+    regex=r'^\d{6}$',
+    message="Enter a valid 6-digit PIN code.",
+)
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -81,11 +91,14 @@ class Product(models.Model):
 
 class Customer(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    name = models.CharField(max_length=200) 
-    locality = models.CharField(max_length=200) 
+    name = models.CharField(max_length=200)
+    locality = models.CharField(max_length=200)
     city =  models.CharField(max_length=50)
-    mobile = models.IntegerField(default=0)
-    zipcode = models.IntegerField()
+    # Stored as text, not a number: phone numbers/PIN codes can have leading
+    # zeros (e.g. "07XXXXXXXX", "070001") which IntegerField silently drops,
+    # and they're never used in arithmetic.
+    mobile = models.CharField(max_length=15, default='', blank=True, validators=[mobile_validator])
+    zipcode = models.CharField(max_length=6, default='', blank=True, validators=[zipcode_validator])
     state = models.CharField(max_length=100)
     def __str__(self):
         return self.name

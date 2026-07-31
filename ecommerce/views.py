@@ -36,7 +36,7 @@ def llm_query(request):
 
         # 2. Extract category/type (e.g., "outfit", "dress", etc.)
         # You can improve this with more NLP or Gemini if needed
-        category_keywords = ['outfit', 'dress', 'shirt', 'lehenga', 'jeans', 'wedding', ...]  # Add as needed
+        category_keywords = ['outfit', 'dress', 'shirt', 'lehenga', 'jeans', 'wedding']  # Add as needed
         category = next((word for word in category_keywords if word in user_query.lower()), None)
 
         # 3. Query the database
@@ -44,7 +44,8 @@ def llm_query(request):
         if budget:
             products = products.filter(discounted_price__lte=budget)
         if category:
-            products = products.filter(category__icontains=category)  # Adjust field as needed
+            # category is a ForeignKey to Category, so filter on the related name field
+            products = products.filter(category__name__icontains=category)
 
         # 4. Prepare response
         product_list = [
